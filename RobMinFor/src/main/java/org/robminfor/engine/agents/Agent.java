@@ -6,11 +6,13 @@ import java.util.List;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.actions.MoveTo;
+import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.util.Vect;
 
 public class Agent {
 	private Site site;
 	private final List<AbstractAction> actions = new ArrayList<AbstractAction>();
+	private AbstractEntity inventory = null;
 
 	public Agent(Site site) {
 		setSite(site);
@@ -48,6 +50,14 @@ public class Agent {
 		for (AbstractAction a : toremove) {
 			removeAction(a);
 		}
+	}
+
+	public AbstractEntity getInventory() {
+		return inventory;
+	}
+
+	public void setInventory(AbstractEntity inventory) {
+		this.inventory = inventory;
 	}
 
 	public void update() {
