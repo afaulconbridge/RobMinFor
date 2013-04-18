@@ -145,6 +145,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        				//nothing found in time, draw darkness
 		        			g.setColor(Color.BLACK);
 		        			g.drawRect(pixelx, pixely, TILESIZE, TILESIZE);
+		        			g.fillRect(pixelx, pixely, TILESIZE, TILESIZE);
 	        			} else {
 	        				//found something
 	        				//shade it and draw it

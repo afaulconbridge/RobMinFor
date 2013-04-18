@@ -6,6 +6,7 @@ public class Perlin {
 	// JAVA REFERENCE IMPLEMENTATION OF IMPROVED NOISE - COPYRIGHT 2002 KEN PERLIN.
 
 	public double noise(double x, double y, double z) {
+		
 		//FIND UNIT CUBE THAT CONTAINS POINT
 		int X = (int) Math.floor(x) & 255;
 		int Y = (int) Math.floor(y) & 255;
@@ -57,14 +58,14 @@ public class Perlin {
 
 	private final int p[] = new int[512];
 	
-	public Perlin(long seed){
+	public Perlin(long seed) {
 		Random rng = new Random(seed);
 		for (int i = 0; i < 256; i++) {
 			p[256 + i] = p[i] = rng.nextInt(256);
 		}
 	}
 	
-	public Perlin(){
+	public Perlin() {
 		Random rng = new Random();
 		for (int i = 0; i < 256; i++) {
 			p[256 + i] = p[i] = rng.nextInt(256);

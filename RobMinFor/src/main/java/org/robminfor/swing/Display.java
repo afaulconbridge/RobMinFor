@@ -126,9 +126,9 @@ public class Display {
 		mntmNew.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO prompt for characteristics
+				//TODO prompt for parameters
 				LandscapeFactory factory = LandscapeFactory.getInstance();
-				landscape = factory.generate(32, 32, 16);
+				landscape = factory.generate(64, 64, 23);
 				setLandscape(landscape);
 			}
 		});

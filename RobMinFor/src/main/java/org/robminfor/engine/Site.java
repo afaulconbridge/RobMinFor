@@ -14,7 +14,8 @@ public class Site {
 
 	private AbstractEntity entity;
 	private final Vect position;
-	private final Landscape landscape;
+	private final Landscape landscape;	
+	
 	public Site(AbstractEntity entity, Vect position, Landscape landscape) {
 		super();
 		this.setEntity(entity);

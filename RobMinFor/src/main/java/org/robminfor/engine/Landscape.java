@@ -27,7 +27,7 @@ public class Landscape {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-	/*
+	/**
 	 * Creates a new Landscape object of the specified size, but completely blank.
 	 * 
 	 * To generate an interesting Landscape, use a LandscapeFactory.
