@@ -8,7 +8,7 @@ public class Ore extends AbstractEntity {
 		super();
 	}
 	
-	public static AbstractEntity getInstance(){
+	public static Ore getInstance(){
 		return singleton;
 	}
 

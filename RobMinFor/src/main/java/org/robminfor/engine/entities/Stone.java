@@ -8,7 +8,7 @@ public class Stone extends AbstractEntity {
 		super();
 	}
 	
-	public static AbstractEntity getInstance(){
+	public static Stone getInstance(){
 		return singleton;
 	}
 

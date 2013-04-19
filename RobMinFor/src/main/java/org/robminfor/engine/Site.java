@@ -136,13 +136,17 @@ public class Site {
     
     public boolean isTransitable(Site other){
         //everything that is transitable, is accessible
-        if (!isAccessible(other)){
+        if (!isAccessible(other)) {
             //log.info("other is NOT accessible "+other);
             return false;
         //check it is standable at the start
-    	} else if (!other.isWalkable()){
+    	} else if (!other.isWalkable()) {
             //log.info("other is accessible but NOT walkable "+other);
             return false;
+        //don't count straight down as transitable
+        //avoids digging ground out from underneath, but stops existence of ladders/lifts
+    	} else if (other.getX() == getX() && other.getY() == getY() && other.getZ() == getZ()+1) {
+    		return false; 
     	} else {
             //log.info("other is accessible "+other);
             return true;

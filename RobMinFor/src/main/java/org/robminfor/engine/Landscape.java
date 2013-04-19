@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.agents.Agent;
@@ -19,8 +18,8 @@ public class Landscape {
 
 	private List<List<List<Site>>> sites;
 	private List<Agent> agents  = new ArrayList<Agent>();
-	private Queue<AbstractAction> actions  = new LinkedList<AbstractAction>();
-
+	private List<AbstractAction> actions  = new LinkedList<AbstractAction>();
+	private Site homeSite = null;
 	
 	private Calendar calendar = new GregorianCalendar(3141, 5, 9, 2, 6);
 	private final Pathfinder pathfinder = new Pathfinder();
@@ -75,8 +74,15 @@ public class Landscape {
 		}
 	}
 	
-	public AbstractAction pollAction(){
-		return actions.poll();
+	public AbstractAction getActionForAgent(Agent agent) {
+		for (int i = 0; i < actions.size(); i++) {
+			AbstractAction action = actions.get(i);
+			if (action.isValid(agent)) {
+				return actions.remove(i);
+			}
+		}
+		//no suitable actions available
+		return null;
 	}
 	
 	public Site getSite(Vect position){
@@ -128,4 +134,17 @@ public class Landscape {
 		return pathfinder.findPath(start, end);
 	}
 	
+	public void setHomeSite(Site site) {
+		this.homeSite = site;
+	}
+	
+	public Site getHomeSite() {
+		return homeSite;
+	}
+	
+	public Site findNearestStorageFor(Site site, AbstractEntity entity) {
+		//for the moment, Home is the only storage
+		return getHomeSite();
+		//TODO implement for real
+	}
 }

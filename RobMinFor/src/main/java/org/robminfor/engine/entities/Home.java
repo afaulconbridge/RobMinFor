@@ -1,20 +1,56 @@
 package org.robminfor.engine.entities;
 
-public class Home extends AbstractEntity {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
+public class Home extends AbstractEntity implements IStorage  {
 	
-	private static final Home singleton = new Home();
+	private Collection<AbstractFacility> facilities = new ArrayList<AbstractFacility>(); 
+	
+	private Collection<AbstractEntity> content = new ArrayList<AbstractEntity>();
 	
 	protected Home() {
 		super();
 	}
 	
-	public static AbstractEntity getInstance(){
-		return singleton;
+	public static Home getInstance(){
+		return new Home();
 	}
 
 	@Override
 	public boolean isSolid() {
 		return true;
+	}
+	
+	public void addFacility(AbstractFacility facility) {
+		if (!facilities.contains(facility)) {
+			facilities.add(facility);
+		}
+	}
+	
+	public Collection<AbstractFacility> getFacilities() {
+		return Collections.unmodifiableCollection(facilities);
+	}
+
+	@Override
+	public void addEntity(AbstractEntity entity) {
+		if (!content.contains(entity)) {
+			content.add(entity);
+		}
+	}
+
+	@Override
+	public void removeEntity(AbstractEntity entity) {
+		if (!content.contains(entity)) {
+			throw new IllegalArgumentException("Entitiy not in storage");
+		}
+		content.remove(entity);
+	}
+
+	@Override
+	public Collection<AbstractEntity> getContent() {
+		return Collections.unmodifiableCollection(content);
 	}
 
 }

@@ -18,14 +18,11 @@ public class MoveTo extends AbstractAction {
 		this.site = site;
 	}
 	
-	public void doAction(){
-		assert getAgent() != null;
-		Agent agent = getAgent();
-
+	public void doAction(Agent agent) {
         //check if we can complete this action
-        if (!isValid()) {
+        if (!isValid(agent)) {
         	log.info("Aborting moveto");
-        	agent.removeAction(this);
+        	agent.removeActionsOfType(MoveTo.class);
         } else if (agent.getSite().isTransitable(site)) {
             //we are next to the target
         	log.info("Completing moveto");
@@ -38,6 +35,7 @@ public class MoveTo extends AbstractAction {
             if (path == null) {
                 //cannot complete this, no valid path
                 //stop moving
+            	//Should already have been identifier in isValid check
             	log.warn("no path found");
             	agent.removeActionsOfType(MoveTo.class);
             } else {
@@ -61,14 +59,32 @@ public class MoveTo extends AbstractAction {
 	@Override
 	public boolean isValid() {
 		//can't move to solid objects
-		if (site.isSolid()){
+		if (site.isSolid()) {
 			return false;
 		}
-		if (getAgent() != null){
-			if (getAgent().getSite() == site){
-				return false;
-			}
+		if (!site.isWalkable()) {
+			return false;
 		}
+		
+		return true;
+	}
+	
+	@Override
+	public boolean isValid(Agent agent) {
+		if (!isValid()) {
+			return false;
+		}
+		
+		//must be able to path there
+		//either be directly adjacent or full path
+		if (!agent.getSite().isTransitable(site)) {
+			
+	        List<Site> path = site.getLandscape().findPath(agent.getSite(), site);
+	        if (path == null) {
+	        	return false; 
+	        }
+		}
+        
 		return true;
 	}
 }

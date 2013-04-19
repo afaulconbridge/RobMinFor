@@ -8,7 +8,7 @@ public class Crystal extends AbstractEntity {
 		super();
 	}
 	
-	public static AbstractEntity getInstance(){
+	public static Crystal getInstance(){
 		return singleton;
 	}
 

@@ -6,7 +6,6 @@ import org.robminfor.engine.entities.Crystal;
 import org.robminfor.engine.entities.Home;
 import org.robminfor.engine.entities.Ore;
 import org.robminfor.util.OctaveNoise;
-import org.robminfor.util.Perlin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +54,7 @@ public class LandscapeFactory {
 					
 					//log.info("ore value "+oreValue+", x = "+x+", y = "+y+", z = "+z);
 					//log.info("crystal value "+oreValue+", x = "+x+", y = "+y+", z = "+z);
+					
 					if ( oreValue > target && oreValue > crystalValue) {
 						landscape.getSite(x,y,z).setEntity(Ore.getInstance());
 						log.info("Ore!");
@@ -67,17 +67,19 @@ public class LandscapeFactory {
 		}
 		
 		//put a home on the surface
-		landscape.getSite(sizex/2, sizey/2, surfaceheight-1).setEntity(Home.getInstance());
+		Home home = Home.getInstance();
+		landscape.getSite(sizex/2, sizey/2, surfaceheight-1).setEntity(home);
+		landscape.setHomeSite(landscape.getSite(sizex/2, sizey/2, surfaceheight-1));
 		log.info("Finished landscape generator");
 		
 		//add some entities to start with
-		Agent agent = new Agent(landscape.getSite((sizex/2)+1, sizey/2, surfaceheight-1));
+		Agent agent = new Agent(landscape.getSite((sizex/2)+1, sizey/2, surfaceheight-1), home);
 		landscape.addAgent(agent);
-		agent = new Agent(landscape.getSite((sizex/2)-1, sizey/2, surfaceheight-1));
+		agent = new Agent(landscape.getSite((sizex/2)-1, sizey/2, surfaceheight-1), home);
 		landscape.addAgent(agent);
-		agent = new Agent(landscape.getSite(sizex/2, (sizey/2)+1, surfaceheight-1));
+		agent = new Agent(landscape.getSite(sizex/2, (sizey/2)+1, surfaceheight-1), home);
 		landscape.addAgent(agent);
-		agent = new Agent(landscape.getSite(sizex/2, (sizey/2)-1, surfaceheight-1));
+		agent = new Agent(landscape.getSite(sizex/2, (sizey/2)-1, surfaceheight-1), home);
 		landscape.addAgent(agent);
 		
 		return landscape;

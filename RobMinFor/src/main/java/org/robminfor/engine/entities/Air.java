@@ -8,7 +8,7 @@ public class Air extends AbstractEntity {
 		super();
 	}
 	
-	public static AbstractEntity getInstance(){
+	public static Air getInstance(){
 		return singleton;
 	}
 
