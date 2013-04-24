@@ -36,6 +36,8 @@ public class Display {
 
 	private Landscape landscape = null;
 	
+	
+	private Display display;
 	private JFrame frame;
 	private JPanelLandscape jpanellandscape;
 	private JScrollBar depthBar;
@@ -74,12 +76,13 @@ public class Display {
 	 */
 	public Display() {
 		initialize();
+		this.display = this;
 	}
 
 	/**
 	 * Wrapper around JPanelLandscape to ensure other controls are updated.
 	 */
-	private void setLandscape(Landscape landscape){
+	public void setLandscape(Landscape landscape){
 		log.info("Setting new landscape");
 		this.landscape = landscape;
 		jpanellandscape.setLandscape(landscape);
@@ -126,10 +129,10 @@ public class Display {
 		mntmNew.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO prompt for parameters
-				LandscapeFactory factory = LandscapeFactory.getInstance();
-				landscape = factory.generate(64, 64, 23);
-				setLandscape(landscape);
+				NewLandscapeDialog dlg = new NewLandscapeDialog(frame, display);
+				dlg.pack();
+				dlg.setLocationRelativeTo(frame);
+                dlg.setVisible(true);
 			}
 		});
 		mnFile.add(mntmNew);
@@ -238,9 +241,9 @@ public class Display {
 		frame.getContentPane().add(controlpanel, gbc_controlpanel);
 		GridBagLayout gbl_controlpanel = new GridBagLayout();
 		gbl_controlpanel.columnWidths = new int[]{53, 0};
-		gbl_controlpanel.rowHeights = new int[]{15, 15, 16, 0};
+		gbl_controlpanel.rowHeights = new int[]{15, 15, 16, 0, 0};
 		gbl_controlpanel.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_controlpanel.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_controlpanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		controlpanel.setLayout(gbl_controlpanel);
 		
 		landscapetime = new JLabel("00:00");
@@ -265,9 +268,27 @@ public class Display {
 			}
 		});
 		GridBagConstraints gbc_btnDig = new GridBagConstraints();
+		gbc_btnDig.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnDig.insets = new Insets(0, 0, 5, 0);
 		gbc_btnDig.gridx = 0;
 		gbc_btnDig.gridy = 2;
 		controlpanel.add(btnDig, gbc_btnDig);
+		
+		JButton btnCreate = new JButton("Create");
+		btnCreate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				log.info("Create clicked");
+				CreateEntityDialog dlg = new CreateEntityDialog(frame, display, jpanellandscape.getSelected(), landscape);
+				dlg.pack();
+				dlg.setLocationRelativeTo(frame);
+                dlg.setVisible(true);
+			}
+		});
+		GridBagConstraints gbc_btnCreate = new GridBagConstraints();
+		gbc_btnCreate.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnCreate.gridx = 0;
+		gbc_btnCreate.gridy = 3;
+		controlpanel.add(btnCreate, gbc_btnCreate);
 		
 		//landscape update timer
 		ActionListener taskPerformer = new ActionListener() {

@@ -2,6 +2,7 @@ package org.robminfor.swing;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import java.awt.AlphaComposite;
@@ -33,6 +34,7 @@ import org.robminfor.util.Vect;
 public class JPanelLandscape extends JComponent implements Scrollable, MouseListener, MouseMotionListener {
 
 	public static final int TILESIZE = 32;
+	private static final String UNKNOWN = "unknown";
 	
 	private static final long serialVersionUID = 8391342856037568970L;
 
@@ -75,7 +77,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         addMouseMotionListener(this);
 	}
 
-	private Image getDarkTile(){
+	private Image getDarkTile() {
 		if (darktile == null){
 			darktile = createImage(TILESIZE, TILESIZE);
 			Graphics gtile = darktile.getGraphics();
@@ -87,19 +89,23 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 		
 	}
 	
-	public void setLandscape(Landscape landscape){
+	public void setLandscape(Landscape landscape) {
 		log.info("Setting new landscape");
 		this.landscape = landscape;
 		
 		setPreferredSize(new Dimension(landscape.getSizeX()*32, landscape.getSizeY()*32));
 		
 		oldagentposs = new ArrayList<Vect>(landscape.getAgentCount());
-		for (int i = 0; i < landscape.getAgentCount(); i++){
+		for (int i = 0; i < landscape.getAgentCount(); i++) {
 			oldagentposs.add(landscape.getAgents(i).getPosition());	
 		}
 		
 		revalidate();
 		repaint();
+	}
+	
+	public List<Site> getSelected() {
+		return Collections.unmodifiableList(selected);
 	}
 	
 	@Override
@@ -109,7 +115,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 		//this cast *should* always work...
 		Graphics2D g = (Graphics2D) gg;
         
-        if (landscape == null){
+        if (landscape == null) {
         	return;
         }
                 
@@ -122,26 +128,29 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         int visibletilebottom = visibletiletop+(visible.height/TILESIZE)+2;
         visibletilebottom = Math.min(landscape.getSizeY(), visibletilebottom);
         
-        for (int y = visibletiletop; y < visibletilebottom; y++){
+        for (int y = visibletiletop; y < visibletilebottom; y++) {
         	int pixely = y*TILESIZE;
-	        for (int x = visibletileleft; x < visibletileright; x++){
+	        for (int x = visibletileleft; x < visibletileright; x++) {
 	        	int pixelx = x*TILESIZE;
 	        	Rectangle tilerect = new Rectangle(pixelx, pixely, TILESIZE, TILESIZE);
-	        	if (visible.intersects(tilerect)){
-	        		AbstractEntity entity = landscape.getSite(x, y, getVisibleZ()).getEntity();
-	        		if (entity == Air.getInstance()){
+	        	if (visible.intersects(tilerect)) {
+	        		Site site = landscape.getSite(x, y, getVisibleZ());
+	        		AbstractEntity entity = site.getEntity();
+	        		if (entity == Air.getInstance()) {
 	        			//air is see-through, so draw the tile underneath
 	        			int depth = 1;
         				AbstractEntity deepentity  = null;
-	        			while (depth < 4){
-	        				deepentity = landscape.getSite(x, y, getVisibleZ()+depth).getEntity();
-	        				if (deepentity == Air.getInstance()){
+        				Site deepsite = null;
+	        			while (depth < 4) {
+	        				deepsite = landscape.getSite(x, y, getVisibleZ()+depth);
+	        				deepentity = deepsite.getEntity();
+	        				if (deepentity == Air.getInstance()) {
 		        				depth += 1;
 	        				} else {
 	        					break;
 	        				}
 	        			}
-	        			if (depth >= 4){
+	        			if (depth >= 4) {
 	        				//nothing found in time, draw darkness
 		        			g.setColor(Color.BLACK);
 		        			g.drawRect(pixelx, pixely, TILESIZE, TILESIZE);
@@ -151,13 +160,17 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        				//shade it and draw it
 			        		Image tileimage = null;
 			        		float darkness = 0.25f * depth;
+			        		String imageName = UNKNOWN;
+			        		if (deepsite.isVisible()) {
+			        			imageName = deepentity.getClass().getSimpleName();
+			        		}
 			        		try {
-			        			tileimage = ImageLoader.getImage(deepentity.getClass().getSimpleName());
+			        			tileimage = ImageLoader.getImage(imageName);
 			        		} catch (IOException e) {
-			        			log.error("Problem loading "+deepentity.getClass().getSimpleName());
+			        			log.error("Problem loading "+imageName);
 			        			throw new RuntimeException(e);
 			        		}
-			        		if (tileimage != null){
+			        		if (tileimage != null) {
 			        			  
 			        			g.drawImage(tileimage, pixelx, pixely, null);		        			
 			        			
@@ -169,13 +182,17 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        			}
 	        		} else {
 		        		Image tileimage = null;
+		        		String imageName = UNKNOWN;
+		        		if (site.isVisible()) {
+		        			imageName = entity.getClass().getSimpleName();
+		        		}
 		                try {
-		                	tileimage = ImageLoader.getImage(entity.getClass().getSimpleName());
+		                	tileimage = ImageLoader.getImage(imageName);
 		        		} catch (IOException e) {
-		        			log.error("Problem loading "+entity.getClass().getSimpleName());
+		        			log.error("Problem loading "+imageName);
 		        			throw new RuntimeException(e);
 		        		}
-		        		if (tileimage != null){
+		        		if (tileimage != null) {
 		        			g.drawImage(tileimage, pixelx, pixely, null);
 		        		}
 	        		}

@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 public class OctaveNoise {
 
 	private final int seed;
-	
-    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final int octaveCount;
     
@@ -35,6 +33,13 @@ public class OctaveNoise {
 		}
 	}
 	
+	public int getOctaveCount() {
+		return octaveCount;
+	}
+	
+	public int getSeed() {
+		return seed;
+	}
 
 	public double noise(double x, double y, double z) {
 		double value = 0.0;

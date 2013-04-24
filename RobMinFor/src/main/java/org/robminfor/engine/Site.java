@@ -15,6 +15,7 @@ public class Site {
 	private AbstractEntity entity;
 	private final Vect position;
 	private final Landscape landscape;	
+	private boolean visible = false;
 	
 	public Site(AbstractEntity entity, Vect position, Landscape landscape) {
 		super();
@@ -28,7 +29,13 @@ public class Site {
 	}
 
 	public void setEntity(AbstractEntity entity) {
+		AbstractEntity oldentity = this.entity;
 		this.entity = entity;
+		
+		//if visible and we have been taken from solid to non-solid
+		if (isVisible() && oldentity.isSolid() && !entity.isSolid()) {
+			setVisible();
+		}
 	}
 	
 	public Vect getPosition() {
@@ -74,6 +81,9 @@ public class Site {
         }
 	}
 	
+	/**
+	 * @return List<Site> sites that are adjacent including diagonals and inside the landscape
+	 */
 	public List<Site> getAdjacents(){
 		List<Site> adjacents = new ArrayList<Site>();
 		for(int x = -1; x <= 1; x++){
@@ -167,5 +177,20 @@ public class Site {
 	@Override
 	public String toString(){
 		return "Site "+getX()+","+getY()+","+getZ();
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible() {
+		this.visible = true;
+		if (!isSolid()) {
+			for(Site other : getAdjacents()) {
+				if (!other.isVisible()) {
+					other.setVisible();
+				}
+			}
+		}
 	}
 }
