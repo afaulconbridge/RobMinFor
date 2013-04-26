@@ -39,27 +39,8 @@ public class Dig extends AbstractAction {
         } else {
             //further away, need to pathfind
         	log.info("Moving to dig");
-        	
-            List<Site> path = site.getLandscape().findPath(agent.getSite(), site);
-            if (path == null) {
-                //cannot complete this, no valid path
-                //stop moving
-            	log.warn("no path found");
-            	agent.removeActionsOfType(MoveTo.class);
-            } else {
-                //remove any other moveto actions
-            	agent.removeActionsOfType(MoveTo.class);
-
-                //log.info("path length = "+path.size());
-            	//log.info("agent.getSite() = "+agent.getSite());
-                //re-pathfind
-                for (int i = path.size()-1; i >=0; i--){
-                	Site loc = path.get(i);
-                	//log.info("loc = "+loc);
-                	MoveTo action = new MoveTo(loc);
-                	agent.addAction(action);
-                }
-            }
+        	MoveTo action = new MoveTo(site);
+        	agent.addAction(action);
         }
 	}
 	

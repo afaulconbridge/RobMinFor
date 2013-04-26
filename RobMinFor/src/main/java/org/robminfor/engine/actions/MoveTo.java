@@ -35,7 +35,7 @@ public class MoveTo extends AbstractAction {
             if (path == null) {
                 //cannot complete this, no valid path
                 //stop moving
-            	//Should already have been identifier in isValid check
+            	//Should already have been identified in isValid check
             	log.warn("no path found");
             	agent.removeActionsOfType(MoveTo.class);
             } else {

@@ -2,6 +2,7 @@ package org.robminfor.engine;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
+import org.robminfor.engine.entities.AbstractFacility;
 import org.robminfor.engine.entities.Stone;
 import org.robminfor.util.Vect;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ public class Landscape {
 	private List<Agent> agents  = new ArrayList<Agent>();
 	private List<AbstractAction> actions  = new LinkedList<AbstractAction>();
 	private Site homeSite = null;
+	private Collection<AbstractFacility> facilities = new LinkedList<AbstractFacility>();
 	
 	private Calendar calendar = new GregorianCalendar(3141, 5, 9, 2, 6);
 	private final Pathfinder pathfinder = new Pathfinder();
@@ -146,5 +149,22 @@ public class Landscape {
 		//for the moment, Home is the only storage
 		return getHomeSite();
 		//TODO implement for real
+	}
+	
+	public void addFacility(AbstractFacility facility) {
+		if (!facilities.contains(facility)) {
+			facilities.add(facility);
+		} else {
+			throw new IllegalArgumentException("Duplicate facility "+facility);
+		}
+	}
+	
+	public void removeFacility(AbstractFacility facility) {
+		if (facilities.contains(facility)) {
+			facilities.add(facility);
+		} else {
+			throw new IllegalArgumentException("Non contained facility "+facility);
+		}
+		
 	}
 }

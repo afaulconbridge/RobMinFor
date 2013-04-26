@@ -1,12 +1,8 @@
 package org.robminfor.engine.entities;
 
-public class AbstractFacility extends AbstractEntity {
-
-	protected final Home home;
+public abstract class AbstractFacility extends AbstractEntity {
 	
-	public AbstractFacility(Home home) {
-		this.home = home;
-		home.addFacility(this);
+	public AbstractFacility() {
 	}
 	
 	@Override

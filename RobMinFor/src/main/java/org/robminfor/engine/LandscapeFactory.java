@@ -75,7 +75,7 @@ public class LandscapeFactory {
 		}
 		
 		//put a home on the surface
-		Home home = Home.getInstance();
+		Home home = new Home();
 		Site homesite = landscape.getSite(sizex/2, sizey/2, surfaceheight-1);
 		homesite.setEntity(home);
 		landscape.setHomeSite(homesite);

@@ -10,12 +10,8 @@ public class Home extends AbstractEntity implements IStorage  {
 	
 	private Collection<AbstractEntity> content = new ArrayList<AbstractEntity>();
 	
-	protected Home() {
+	public Home() {
 		super();
-	}
-	
-	public static Home getInstance(){
-		return new Home();
 	}
 
 	@Override
