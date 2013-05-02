@@ -87,14 +87,14 @@ public class LandscapeFactory {
 		}
 		
 		//add some entities to start with
-		Agent agent = new Agent(landscape.getSite((sizex/2)+1, sizey/2, surfaceheight-1), home);
+		Agent agent = new Agent(landscape.getSite((sizex/2)+1, sizey/2, surfaceheight-1));
 		landscape.addAgent(agent);
-		agent = new Agent(landscape.getSite((sizex/2)-1, sizey/2, surfaceheight-1), home);
-		landscape.addAgent(agent);
-		agent = new Agent(landscape.getSite(sizex/2, (sizey/2)+1, surfaceheight-1), home);
-		landscape.addAgent(agent);
-		agent = new Agent(landscape.getSite(sizex/2, (sizey/2)-1, surfaceheight-1), home);
-		landscape.addAgent(agent);
+		//agent = new Agent(landscape.getSite((sizex/2)-1, sizey/2, surfaceheight-1));
+		//landscape.addAgent(agent);
+		//agent = new Agent(landscape.getSite(sizex/2, (sizey/2)+1, surfaceheight-1));
+		//landscape.addAgent(agent);
+		//agent = new Agent(landscape.getSite(sizex/2, (sizey/2)-1, surfaceheight-1));
+		//landscape.addAgent(agent);
 
 		log.info("Finished landscape generator");
 		return landscape;

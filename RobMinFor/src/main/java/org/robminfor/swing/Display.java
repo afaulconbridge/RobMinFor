@@ -278,7 +278,7 @@ public class Display {
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				log.info("Create clicked");
-				CreateEntityDialog dlg = new CreateEntityDialog(frame, display, jpanellandscape.getSelected(), landscape);
+				CreateEntityDialog dlg = new CreateEntityDialog(frame, jpanellandscape.getSelected(), landscape);
 				dlg.pack();
 				dlg.setLocationRelativeTo(frame);
                 dlg.setVisible(true);

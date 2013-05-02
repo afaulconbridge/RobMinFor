@@ -45,6 +45,11 @@ public class Home extends AbstractEntity implements IStorage  {
 	}
 
 	@Override
+	public boolean containsEntity(AbstractEntity thing) {
+		return content.contains(thing);
+	}
+
+	@Override
 	public Collection<AbstractEntity> getContent() {
 		return Collections.unmodifiableCollection(content);
 	}

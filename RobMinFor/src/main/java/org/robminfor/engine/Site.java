@@ -176,7 +176,7 @@ public class Site {
 	
 	@Override
 	public String toString(){
-		return "Site "+getX()+","+getY()+","+getZ();
+		return "Site<"+getX()+","+getY()+","+getZ()+">";
 	}
 
 	public boolean isVisible() {

@@ -26,21 +26,20 @@ public class Dig extends AbstractAction {
 			//target is not solid and thus not diggable
         	log.info("Aborting dig");
         	agent.removeAction(this);
-		} else if (agent.getSite().isAccessible(site)) {
+		} else if (!agent.getSite().isAccessible(site)) {
+            //further away, need to pathfind
+        	log.info("Navigating to dig");
+        	agent.addAction( new NavigateTo(site));
+        } else {
             //we are next to the target
-        	log.info("Performing dig");
         	agent.setInventory(site.getEntity());
 			site.setEntity(Air.getInstance());
+			//end this action
         	agent.removeAction(this);
         	//move stuff to drop off
         	Site storage = site.getLandscape().findNearestStorageFor(agent.getSite(), agent.getInventory());
         	Deliver deliver = new Deliver(storage);
         	agent.addAction(deliver);
-        } else {
-            //further away, need to pathfind
-        	log.info("Moving to dig");
-        	MoveTo action = new MoveTo(site);
-        	agent.addAction(action);
         }
 	}
 	

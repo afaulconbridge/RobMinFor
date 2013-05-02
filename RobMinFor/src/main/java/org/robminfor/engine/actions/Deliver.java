@@ -1,7 +1,5 @@
 package org.robminfor.engine.actions;
 
-import java.util.List;
-
 import org.robminfor.engine.Site;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.IStorage;
@@ -22,24 +20,22 @@ public class Deliver extends AbstractAction {
 	@Override
 	public void doAction(Agent agent) {
         //check if we can complete this action
-		if (!isValid()){
+		if (!isValid(agent)){
         	log.info("Aborting deliver");
         	agent.removeAction(this);
-		} else if (agent.getSite().isAccessible(site)) {
+		} else if (!agent.getSite().isAccessible(site)) {
+	        //further away, need to pathfind
+	    	log.info("Navigating to deliver");
+        	agent.addAction( new NavigateTo(site));
+	    } else {
 	        //we are next to the target
 	    	log.info("Performing deliver");
 	    	IStorage storage = (IStorage) site.getEntity();
 	    	storage.addEntity(agent.getInventory());
 	    	agent.setInventory(null);
+	    	//end this action
 	    	agent.removeAction(this);
-	    } else {
-	        //further away, need to pathfind
-	    	log.info("Moving to deliver");
-        	MoveTo action = new MoveTo(site);
-        	agent.addAction(action);
 	    }
-		
-
 	}
 
 	@Override

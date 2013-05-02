@@ -11,21 +11,24 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 
 import org.robminfor.engine.Landscape;
-import org.robminfor.engine.LandscapeFactory;
 import org.robminfor.engine.Site;
+import org.robminfor.engine.actions.AbstractAction;
+import org.robminfor.engine.actions.Deploy;
+import org.robminfor.engine.entities.AbstractEntity;
+import org.robminfor.engine.entities.Stonemasonry;
+import org.robminfor.engine.entities.IStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JScrollPane;
 import javax.swing.JList;
+import javax.swing.AbstractListModel;
 
 public class CreateEntityDialog extends JDialog {
 
@@ -33,16 +36,35 @@ public class CreateEntityDialog extends JDialog {
 	private final CreateEntityDialog newdialog;
 	private final List<Site> selected;
 	private final Landscape landscape;
-	
-	private Display display;
 
+    private Logger log = LoggerFactory.getLogger(getClass());
+	
+	private class OkActionListener implements ActionListener {
+		
+		public void actionPerformed(ActionEvent e) {
+			for (Site site : selected) {
+				//TODO allow for buying of things rather than magically creating it
+				//TODO allow for selecting of different things
+				AbstractEntity thing = new Stonemasonry();
+				
+				Site source = landscape.findNearestStorageFor(site, thing);
+				IStorage sourceStorage = (IStorage) source.getEntity();
+				sourceStorage.addEntity(thing);
+				
+				AbstractAction action = new Deploy(source, site, thing);
+				landscape.addAction(action);
+				log.info("creating Deploy of Stonemasonry");
+			}
+			newdialog.dispose();
+		}
+	}
+	
 	/**
 	 * Create the dialog.
 	 * @param parent 
 	 */
-	public CreateEntityDialog(Frame parent, Display displayTmp, List<Site> selectedTmp, Landscape landscapeTmp) {
+	public CreateEntityDialog(Frame parent, List<Site> selectedTmp, Landscape landscapeTmp) {
 		super(parent, true);
-		this.display = displayTmp;
 		newdialog = this;
 		this.selected = selectedTmp;
 		this.landscape = landscapeTmp;
@@ -67,11 +89,18 @@ public class CreateEntityDialog extends JDialog {
 			contentPanel.add(lblSelectParametersFor, gbc_lblSelectParametersFor);
 		}
 		{
-			List<String> items = new ArrayList<String>();
-			items.add("Stonemasony");
 			//add other items here
 			//TODO load this from some external file
-			JList list = new JList(items.toArray());
+			JList list = new JList();
+			list.setModel(new AbstractListModel() {
+				String[] values = new String[] {"Stonemasonry"};
+				public int getSize() {
+					return values.length;
+				}
+				public Object getElementAt(int index) {
+					return values[index];
+				}
+			});
 			GridBagConstraints gbc_list = new GridBagConstraints();
 			gbc_list.fill = GridBagConstraints.BOTH;
 			gbc_list.gridx = 0;
@@ -87,14 +116,9 @@ public class CreateEntityDialog extends JDialog {
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
-				okButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						for (Site site : selected) {
-							//TODO create actions
-						}
-						newdialog.dispose();
-					}
-				});
+				okButton.addActionListener(new OkActionListener());
+				//TODO disable OK button until something is selected
+				//okButton.setEnabled(false);
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");

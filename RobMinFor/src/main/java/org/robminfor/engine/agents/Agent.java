@@ -12,16 +12,17 @@ import org.robminfor.util.Vect;
 
 public class Agent {
 	private Site site;
-	private final Home home;
 	private final List<AbstractAction> actions = new ArrayList<AbstractAction>();
 	private AbstractEntity inventory = null;
 
-	public Agent(Site site, Home home) {
+	public Agent(Site site) {
 		setSite(site);
-		this.home = home;
 	}
 
 	public void setSite(Site site) {
+		if (site == null) {
+			throw new IllegalArgumentException("Agent cannot be at a null site");
+		}
 		this.site = site;
 	}
 

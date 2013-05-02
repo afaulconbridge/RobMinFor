@@ -9,4 +9,6 @@ public interface IStorage {
 	public void removeEntity(AbstractEntity entity);
 	
 	public Collection<AbstractEntity> getContent();
+
+	public boolean containsEntity(AbstractEntity thing);
 }
