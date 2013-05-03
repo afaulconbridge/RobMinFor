@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.ButtonGroup;
+import javax.swing.JDialog;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -241,9 +242,9 @@ public class Display {
 		frame.getContentPane().add(controlpanel, gbc_controlpanel);
 		GridBagLayout gbl_controlpanel = new GridBagLayout();
 		gbl_controlpanel.columnWidths = new int[]{53, 0};
-		gbl_controlpanel.rowHeights = new int[]{15, 15, 16, 0, 0};
+		gbl_controlpanel.rowHeights = new int[]{15, 15, 16, 0, 0, 0};
 		gbl_controlpanel.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_controlpanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_controlpanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		controlpanel.setLayout(gbl_controlpanel);
 		
 		landscapetime = new JLabel("00:00");
@@ -278,17 +279,33 @@ public class Display {
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				log.info("Create clicked");
-				CreateEntityDialog dlg = new CreateEntityDialog(frame, jpanellandscape.getSelected(), landscape);
+				JDialog dlg = new CreateEntityDialog(frame, jpanellandscape.getSelected(), landscape);
 				dlg.pack();
 				dlg.setLocationRelativeTo(frame);
                 dlg.setVisible(true);
 			}
 		});
 		GridBagConstraints gbc_btnCreate = new GridBagConstraints();
+		gbc_btnCreate.insets = new Insets(0, 0, 5, 0);
 		gbc_btnCreate.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnCreate.gridx = 0;
 		gbc_btnCreate.gridy = 3;
 		controlpanel.add(btnCreate, gbc_btnCreate);
+		
+		JButton btnTrade = new JButton("Trade");
+		btnCreate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				log.info("Trade clicked");
+				JDialog dlg = new TradeDialog(frame, landscape);
+				dlg.pack();
+				dlg.setLocationRelativeTo(frame);
+                dlg.setVisible(true);
+			}
+		});
+		GridBagConstraints gbc_btnTrade = new GridBagConstraints();
+		gbc_btnTrade.gridx = 0;
+		gbc_btnTrade.gridy = 4;
+		controlpanel.add(btnTrade, gbc_btnTrade);
 		
 		//landscape update timer
 		ActionListener taskPerformer = new ActionListener() {

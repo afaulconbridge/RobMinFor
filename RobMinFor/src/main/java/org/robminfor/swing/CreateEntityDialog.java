@@ -33,7 +33,7 @@ import javax.swing.AbstractListModel;
 public class CreateEntityDialog extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
-	private final CreateEntityDialog newdialog;
+	private final JDialog newdialog;
 	private final List<Site> selected;
 	private final Landscape landscape;
 
