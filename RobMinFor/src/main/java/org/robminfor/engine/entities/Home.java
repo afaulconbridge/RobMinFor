@@ -31,9 +31,8 @@ public class Home extends AbstractEntity implements IStorage  {
 
 	@Override
 	public void addEntity(AbstractEntity entity) {
-		if (!content.contains(entity)) {
-			content.add(entity);
-		}
+		//must allow duplicates here because stateless entities use singleton pattern 
+		content.add(entity);
 	}
 
 	@Override
