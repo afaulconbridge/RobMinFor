@@ -7,7 +7,6 @@ import org.robminfor.engine.Site;
 import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.actions.Deliver;
 import org.robminfor.engine.entities.AbstractEntity;
-import org.robminfor.engine.entities.Home;
 import org.robminfor.util.Vect;
 
 public class Agent {

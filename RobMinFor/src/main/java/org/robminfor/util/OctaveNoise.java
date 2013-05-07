@@ -2,9 +2,6 @@ package org.robminfor.util;
 
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class OctaveNoise {
 
 	private final int seed;

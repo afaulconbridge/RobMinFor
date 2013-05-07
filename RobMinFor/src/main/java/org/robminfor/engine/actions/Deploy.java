@@ -3,7 +3,6 @@ package org.robminfor.engine.actions;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
-import org.robminfor.engine.entities.Air;
 import org.robminfor.engine.entities.IStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

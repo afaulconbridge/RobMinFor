@@ -22,7 +22,6 @@ import javax.swing.Timer;
 import javax.swing.border.EtchedBorder;
 
 import org.robminfor.engine.Landscape;
-import org.robminfor.engine.LandscapeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
