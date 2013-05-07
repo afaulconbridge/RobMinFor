@@ -23,6 +23,7 @@ public class Landscape {
 	private List<AbstractAction> actions  = new LinkedList<AbstractAction>();
 	private Site homeSite = null;
 	private Collection<AbstractFacility> facilities = new LinkedList<AbstractFacility>();
+	private Integer money = 1000;
 	
 	private Calendar calendar = new GregorianCalendar(3141, 5, 9, 2, 6);
 	private final Pathfinder pathfinder = new Pathfinder();
@@ -145,6 +146,21 @@ public class Landscape {
 		return homeSite;
 	}
 	
+	public int getMoney() {
+		synchronized(this.money) {
+			return money;
+		}
+	}
+
+	public void changeMoney(int difference) {
+		synchronized(this.money) {
+			if (this.money+difference < 0) {
+				throw new IllegalArgumentException("No Debts allowed!");
+			}
+			this.money += difference;
+		}
+	}
+
 	public Site findNearestStorageFor(Site site, AbstractEntity entity) {
 		//for the moment, Home is the only storage
 		return getHomeSite();

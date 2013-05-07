@@ -43,7 +43,14 @@ public class Display {
 	private JScrollBar depthBar;
 	private JLabel landscapetime;
 	private JLabel landscapedate;
+	private JLabel landscapemoney;
+	
+	private JButton btnDig;
+	private JButton btnCreate;
+	private JButton btnTrade;
+	
 	private final ButtonGroup buttonGroupSpeed = new ButtonGroup();
+	
 
 	private long lastupdate;
 	
@@ -174,9 +181,9 @@ public class Display {
 		buttonGroupSpeed.add(rdbtnmntmPause);
 		mnSpeed.add(rdbtnmntmPause);
 		
-		JRadioButtonMenuItem rdbtnmntmX = new JRadioButtonMenuItem("x1");
-		rdbtnmntmX.setSelected(true);
-		rdbtnmntmX.addActionListener(new ActionListener() {
+		JRadioButtonMenuItem rdbtnmntmX_1 = new JRadioButtonMenuItem("x1");
+		rdbtnmntmX_1.setSelected(true);
+		rdbtnmntmX_1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				updatetimer.setDelay(1000);
@@ -184,11 +191,11 @@ public class Display {
 				updatetimer.restart();
 			}
 		});
-		buttonGroupSpeed.add(rdbtnmntmX);
-		mnSpeed.add(rdbtnmntmX);
+		buttonGroupSpeed.add(rdbtnmntmX_1);
+		mnSpeed.add(rdbtnmntmX_1);
 		
-		JRadioButtonMenuItem rdbtnmntmX_1 = new JRadioButtonMenuItem("x2");
-		rdbtnmntmX_1.addActionListener(new ActionListener() {
+		JRadioButtonMenuItem rdbtnmntmX_2 = new JRadioButtonMenuItem("x2");
+		rdbtnmntmX_2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				updatetimer.setDelay(500);
@@ -196,11 +203,23 @@ public class Display {
 				updatetimer.restart();
 			}
 		});
-		buttonGroupSpeed.add(rdbtnmntmX_1);
-		mnSpeed.add(rdbtnmntmX_1);
+		buttonGroupSpeed.add(rdbtnmntmX_2);
+		mnSpeed.add(rdbtnmntmX_2);
 		
-		JRadioButtonMenuItem rdbtnmntmX_2 = new JRadioButtonMenuItem("x10");
-		rdbtnmntmX_2.addActionListener(new ActionListener() {
+		JRadioButtonMenuItem rdbtnmntmX_5 = new JRadioButtonMenuItem("x5");
+		rdbtnmntmX_5.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				updatetimer.setDelay(200);
+				updatetimer.setInitialDelay(200);
+				updatetimer.restart();
+			}
+		});
+		buttonGroupSpeed.add(rdbtnmntmX_5);
+		mnSpeed.add(rdbtnmntmX_5);
+		
+		JRadioButtonMenuItem rdbtnmntmX_10 = new JRadioButtonMenuItem("x10");
+		rdbtnmntmX_10.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				updatetimer.setDelay(100);
@@ -208,8 +227,8 @@ public class Display {
 				updatetimer.restart();
 			}
 		});
-		buttonGroupSpeed.add(rdbtnmntmX_2);
-		mnSpeed.add(rdbtnmntmX_2);
+		buttonGroupSpeed.add(rdbtnmntmX_10);
+		mnSpeed.add(rdbtnmntmX_10);
 		
 		depthBar = new JScrollBar();
 		depthBar.setBlockIncrement(1);
@@ -241,9 +260,9 @@ public class Display {
 		frame.getContentPane().add(controlpanel, gbc_controlpanel);
 		GridBagLayout gbl_controlpanel = new GridBagLayout();
 		gbl_controlpanel.columnWidths = new int[]{53, 0};
-		gbl_controlpanel.rowHeights = new int[]{15, 15, 16, 0, 0, 0};
+		gbl_controlpanel.rowHeights = new int[]{15, 15, 16, 0, 0, 0, 0, 0};
 		gbl_controlpanel.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_controlpanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_controlpanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		controlpanel.setLayout(gbl_controlpanel);
 		
 		landscapetime = new JLabel("00:00");
@@ -260,7 +279,15 @@ public class Display {
 		gbc_date.gridy = 1;
 		controlpanel.add(landscapedate, gbc_date);
 		
-		JButton btnDig = new JButton("Dig");
+		landscapemoney = new JLabel("$0");
+		GridBagConstraints gbc_label = new GridBagConstraints();
+		gbc_label.insets = new Insets(0, 0, 5, 0);
+		gbc_label.gridx = 0;
+		gbc_label.gridy = 2;
+		controlpanel.add(landscapemoney, gbc_label);
+		
+		btnDig = new JButton("Dig");
+		btnDig.setEnabled(false);
 		btnDig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				log.info("Dig clicked");
@@ -271,10 +298,11 @@ public class Display {
 		gbc_btnDig.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnDig.insets = new Insets(0, 0, 5, 0);
 		gbc_btnDig.gridx = 0;
-		gbc_btnDig.gridy = 2;
+		gbc_btnDig.gridy = 3;
 		controlpanel.add(btnDig, gbc_btnDig);
 		
-		JButton btnCreate = new JButton("Create");
+		btnCreate = new JButton("Create");
+		btnCreate.setEnabled(false);
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				log.info("Create clicked");
@@ -288,11 +316,12 @@ public class Display {
 		gbc_btnCreate.insets = new Insets(0, 0, 5, 0);
 		gbc_btnCreate.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnCreate.gridx = 0;
-		gbc_btnCreate.gridy = 3;
+		gbc_btnCreate.gridy = 4;
 		controlpanel.add(btnCreate, gbc_btnCreate);
 		
-		JButton btnTrade = new JButton("Trade");
-		btnCreate.addActionListener(new ActionListener() {
+		btnTrade = new JButton("Trade");
+		btnTrade.setEnabled(false);
+		btnTrade.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				log.info("Trade clicked");
 				JDialog dlg = new TradeDialog(frame, landscape);
@@ -302,9 +331,12 @@ public class Display {
 			}
 		});
 		GridBagConstraints gbc_btnTrade = new GridBagConstraints();
+		gbc_btnTrade.insets = new Insets(0, 0, 5, 0);
+		gbc_btnTrade.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnTrade.gridx = 0;
-		gbc_btnTrade.gridy = 4;
+		gbc_btnTrade.gridy = 5;
 		controlpanel.add(btnTrade, gbc_btnTrade);
+		
 		
 		//landscape update timer
 		ActionListener taskPerformer = new ActionListener() {
@@ -326,6 +358,7 @@ public class Display {
 									Integer year = cal.get(Calendar.YEAR);
 									landscapetime.setText(""+hour+":"+minute);
 									landscapedate.setText(""+day+" / "+month+" / "+year);
+									landscapemoney.setText("$"+landscape.getMoney());
 									lastupdate = System.currentTimeMillis();
 								} catch (Throwable e){
 									log.error("Error caught", e);
