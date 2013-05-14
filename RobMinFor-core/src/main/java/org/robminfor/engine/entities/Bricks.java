@@ -17,4 +17,9 @@ public class Bricks extends AbstractEntity {
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "Bricks";
+	}
+
 }

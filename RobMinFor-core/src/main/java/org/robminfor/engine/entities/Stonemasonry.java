@@ -6,4 +6,9 @@ public class Stonemasonry extends AbstractFacility {
 		super();
 	}
 
+	@Override
+	public String getName() {
+		return "Stonemasonry";
+	}
+
 }

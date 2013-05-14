@@ -17,4 +17,9 @@ public class Air extends AbstractEntity {
 		return false;
 	}
 
+	@Override
+	public String getName() {
+		return "Air";
+	}
+
 }

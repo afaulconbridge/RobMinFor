@@ -34,7 +34,7 @@ import org.robminfor.util.Vect;
 public class JPanelLandscape extends JComponent implements Scrollable, MouseListener, MouseMotionListener {
 
 	public static final int TILESIZE = 32;
-	private static final String UNKNOWN = "unknown";
+	private static final String UNKNOWN = "unknown"; //image name for unknown sites
 	
 	private static final long serialVersionUID = 8391342856037568970L;
 
@@ -95,13 +95,15 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 		
 		setPreferredSize(new Dimension(landscape.getSizeX()*32, landscape.getSizeY()*32));
 		
+		
+		revalidate();
+		repaint();
+		
+		//store old agent positions AFTER we have drawn them
 		oldagentposs = new ArrayList<Vect>(landscape.getAgentCount());
 		for (int i = 0; i < landscape.getAgentCount(); i++) {
 			oldagentposs.add(landscape.getAgents(i).getPosition());	
 		}
-		
-		revalidate();
-		repaint();
 	}
 	
 	public List<Site> getSelected() {
@@ -162,7 +164,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 			        		float darkness = 0.25f * depth;
 			        		String imageName = UNKNOWN;
 			        		if (deepsite.isVisible()) {
-			        			imageName = deepentity.getClass().getSimpleName();
+			        			imageName = deepentity.getName();
 			        		}
 			        		try {
 			        			tileimage = ImageLoader.getImage(imageName);
@@ -184,7 +186,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 		        		Image tileimage = null;
 		        		String imageName = UNKNOWN;
 		        		if (site.isVisible()) {
-		        			imageName = entity.getClass().getSimpleName();
+		        			imageName = entity.getName();
 		        		}
 		                try {
 		                	tileimage = ImageLoader.getImage(imageName);
@@ -235,13 +237,13 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         for (Site site : selected){
         	if (site.getZ() == getVisibleZ()
         			&& site.getX() >= visibletileleft-1 && site.getX() <= visibletileright+1
-        			&& site.getY() >= visibletiletop-1 && site.getY() <= visibletilebottom+1){
+        			&& site.getY() >= visibletiletop-1 && site.getY() <= visibletilebottom+1) {
 		        g.drawRect(site.getX()*TILESIZE, site.getY()*TILESIZE, TILESIZE, TILESIZE);
         	}
         }
-        if (selectedstartx != null && selectedstarty != null && selectedcurrentx != null && selectedcurrenty != null){
-			for (int x = Math.min(selectedstartx, selectedcurrentx); x <= Math.max(selectedstartx, selectedcurrentx); x++){
-				for (int y = Math.min(selectedstarty, selectedcurrenty); y <= Math.max(selectedstarty, selectedcurrenty); y++){
+        if (selectedstartx != null && selectedstarty != null && selectedcurrentx != null && selectedcurrenty != null) {
+			for (int x = Math.min(selectedstartx, selectedcurrentx); x <= Math.max(selectedstartx, selectedcurrentx); x++) {
+				for (int y = Math.min(selectedstarty, selectedcurrenty); y <= Math.max(selectedstarty, selectedcurrenty); y++) {
 					Site site = landscape.getSite(x,y,getVisibleZ());
 		        	if (site.getZ() == getVisibleZ()
 		        			&& site.getX() >= visibletileleft-1 && site.getX() <= visibletileright+1

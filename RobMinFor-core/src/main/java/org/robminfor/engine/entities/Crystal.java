@@ -17,4 +17,9 @@ public class Crystal extends AbstractEntity {
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "Crystal";
+	}
+
 }

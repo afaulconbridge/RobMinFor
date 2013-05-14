@@ -18,6 +18,11 @@ public class Home extends AbstractEntity implements IStorage  {
 	public boolean isSolid() {
 		return true;
 	}
+
+	@Override
+	public String getName() {
+		return "Home";
+	}
 	
 	public void addFacility(AbstractFacility facility) {
 		if (!facilities.contains(facility)) {

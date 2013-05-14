@@ -17,4 +17,9 @@ public class Ore extends AbstractEntity {
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "Ore";
+	}
+
 }

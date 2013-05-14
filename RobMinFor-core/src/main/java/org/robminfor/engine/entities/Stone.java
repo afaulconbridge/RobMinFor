@@ -17,4 +17,9 @@ public class Stone extends AbstractEntity {
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "Stone";
+	}
+
 }
