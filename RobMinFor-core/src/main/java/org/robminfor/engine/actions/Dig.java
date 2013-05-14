@@ -72,4 +72,9 @@ public class Dig extends AbstractAction {
 		return true;
 	}
 
+
+	@Override
+	public Site getSite() {
+		return site;
+	}
 }

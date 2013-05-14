@@ -96,7 +96,7 @@ public class Deploy extends AbstractAction {
 		}
 		
 		if (agent.getInventory() != thing && !sourceStorage.containsEntity(thing)) {
-			log.warn("thing is not in invetory or source entity storage");
+			log.warn("thing is not in inventory or source entity storage");
 			return false;
 		}
 		
@@ -107,6 +107,11 @@ public class Deploy extends AbstractAction {
 		}
 		//TODO add some more criteria here
 		return true;
+	}
+
+	@Override
+	public Site getSite() {
+		return target;
 	}
 
 }

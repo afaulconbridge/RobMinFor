@@ -166,7 +166,7 @@ public class Display {
 		menuBar.add(mnSpeed);
 		
 		JRadioButtonMenuItem rdbtnmntmPause = new JRadioButtonMenuItem("Pause");
-		mntmExit.addActionListener(new ActionListener() {
+		rdbtnmntmPause.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				updatetimer.stop();
@@ -390,10 +390,12 @@ public class Display {
 								btnDig.setEnabled(false);
 								btnCreate.setEnabled(false);
 								btnTrade.setEnabled(false);
+								mnSpeed.setEnabled(false);
 							} else {
 								btnDig.setEnabled(true);
 								btnCreate.setEnabled(true);
 								btnTrade.setEnabled(true);
+								mnSpeed.setEnabled(true);
 							}
 							return null;
 						}	

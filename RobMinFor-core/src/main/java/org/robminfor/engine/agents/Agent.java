@@ -95,5 +95,16 @@ public class Agent {
 			actions.get(0).doAction(this);
 		}
 	}
+	
+	/**
+	 * The return value from this is typically used by the renderer to assiciate an image 
+	 * or other graphic with a worker.
+	 * 
+	 * return @String identifying what worker this is
+	 * @return
+	 */
+	public String getName() {
+		return "Worker";
+	}
 
 }

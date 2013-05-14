@@ -3,6 +3,7 @@ package org.robminfor.engine;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class Landscape {
 	private List<List<List<Site>>> sites;
 	private List<Agent> agents  = new ArrayList<Agent>();
 	private List<AbstractAction> actions  = new LinkedList<AbstractAction>();
+
 	private Site homeSite = null;
 	private Collection<AbstractFacility> facilities = new LinkedList<AbstractFacility>();
 	private Integer money = 1000;
@@ -159,6 +161,10 @@ public class Landscape {
 			}
 			this.money += difference;
 		}
+	}
+	
+	public List<AbstractAction> getActions() {
+		return Collections.unmodifiableList(actions);
 	}
 
 	public Site findNearestStorageFor(Site site, AbstractEntity entity) {

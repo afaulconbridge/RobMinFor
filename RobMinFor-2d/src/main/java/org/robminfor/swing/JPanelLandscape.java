@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import org.robminfor.engine.Landscape;
 import org.robminfor.engine.Site;
+import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.actions.Dig;
+import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.engine.entities.Air;
 import org.robminfor.util.Vect;
@@ -55,6 +57,9 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	private Integer selectedcurrenty = null;
 	private final Stroke selectedstroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	private final Color selectedcolor = Color.blue;
+
+	private final Stroke orderedstroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+	private final Color orderedcolor = Color.lightGray;
 
 	private Image darktile; 
 	
@@ -130,6 +135,8 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         int visibletilebottom = visibletiletop+(visible.height/TILESIZE)+2;
         visibletilebottom = Math.min(landscape.getSizeY(), visibletilebottom);
         
+        final int viewingDepth = 4;
+        
         for (int y = visibletiletop; y < visibletilebottom; y++) {
         	int pixely = y*TILESIZE;
 	        for (int x = visibletileleft; x < visibletileright; x++) {
@@ -143,7 +150,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        			int depth = 1;
         				AbstractEntity deepentity  = null;
         				Site deepsite = null;
-	        			while (depth < 4) {
+	        			while (depth < viewingDepth) {
 	        				deepsite = landscape.getSite(x, y, getVisibleZ()+depth);
 	        				deepentity = deepsite.getEntity();
 	        				if (deepentity == Air.getInstance()) {
@@ -152,7 +159,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        					break;
 	        				}
 	        			}
-	        			if (depth >= 4) {
+	        			if (depth >= viewingDepth) {
 	        				//nothing found in time, draw darkness
 		        			g.setColor(Color.BLACK);
 		        			g.drawRect(pixelx, pixely, TILESIZE, TILESIZE);
@@ -161,7 +168,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        				//found something
 	        				//shade it and draw it
 			        		Image tileimage = null;
-			        		float darkness = 0.25f * depth;
+			        		float darkness = (1.0f/viewingDepth) * depth;
 			        		String imageName = UNKNOWN;
 			        		if (deepsite.isVisible()) {
 			        			imageName = deepentity.getName();
@@ -203,14 +210,15 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         }
         
         for (int i = 0; i < landscape.getAgentCount(); i++){
-        	Vect agentposition = landscape.getAgents(i).getPosition();
-        	if (agentposition.getZ() == getVisibleZ() 
+        	Agent agent = landscape.getAgents(i);
+        	Vect agentposition = agent.getPosition();
+        	if (agentposition.getZ() >= getVisibleZ() &&  agentposition.getZ() <= getVisibleZ()+4
         			&& agentposition.getX() >= visibletileleft-1 && agentposition.getX() <= visibletileright+1
         			&& agentposition.getY() >= visibletiletop-1 && agentposition.getY() <= visibletilebottom+1){
 
         		Image tileimage = null;
                 try {
-                	tileimage = ImageLoader.getImage("Worker");
+                	tileimage = ImageLoader.getImage(agent.getName()); 
         		} catch (IOException e) {
         			log.error("Problem loading Worker");
         			throw new RuntimeException(e);
@@ -263,6 +271,16 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         }
         
         //TODO draw action pending sites
+    	g.setStroke(orderedstroke);
+    	g.setColor(orderedcolor);
+        for (AbstractAction action : landscape.getActions()) {
+        	Site site = action.getSite();
+        	if (site.getZ() == getVisibleZ()
+        			&& site.getX() >= visibletileleft-1 && site.getX() <= visibletileright+1
+        			&& site.getY() >= visibletiletop-1 && site.getY() <= visibletilebottom+1){
+		        g.drawRect(site.getX()*TILESIZE, site.getY()*TILESIZE, TILESIZE, TILESIZE);
+        	}
+        }
     }  
 
 

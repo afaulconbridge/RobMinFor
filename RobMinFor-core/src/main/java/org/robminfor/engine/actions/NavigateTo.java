@@ -79,4 +79,9 @@ public class NavigateTo extends AbstractAction {
         
 		return true;
 	}
+
+	@Override
+	public Site getSite() {
+		return site;
+	}
 }

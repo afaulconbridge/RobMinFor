@@ -75,4 +75,9 @@ public class MoveTo extends AbstractAction {
         
 		return true;
 	}
+
+	@Override
+	public Site getSite() {
+		return site;
+	}
 }
