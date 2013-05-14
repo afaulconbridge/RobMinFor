@@ -15,6 +15,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import org.robminfor.engine.Landscape;
@@ -32,14 +34,54 @@ public class TradeDialog extends JDialog {
 	private final List<JButton> sells = new ArrayList<JButton>(); 
 
     private Logger log = LoggerFactory.getLogger(getClass());
+	private Timer refreshTimer;
+	protected SwingWorker<Void, Void> refreshworker;
+	
+	
+	private String[] values = new String[] {"Stone", "Ore", "Crystal", "Stonemasonry"};
+	private final Landscape landscape;
+	
+	
+	private Class getEntityClass(String entityName) throws ClassNotFoundException {
+		String clsName = "org.robminfor.engine.entities."+entityName;
+		
+		return Class.forName(clsName);
+	}
+	
+	private int getCount(String entityName) throws ClassNotFoundException {
+		Class cls = getEntityClass(entityName);
+
+		//TODO implement this in a generic fashion over all storage sites
+		int count = 0;
+		Home home = (Home) landscape.getHomeSite().getEntity();
+		for(AbstractEntity thing : home.getContent()){
+			if (cls.isInstance(thing)) {
+				count += 1;
+			}
+		}
+		return count;
+	}
+	
+	private int getBuyCost(String entityName) throws ClassNotFoundException {
+		Class cls = getEntityClass(entityName);
+		//TODO implement for real
+		return 200;
+	}
+	
+	private int getSellValue(String entityName) throws ClassNotFoundException {
+		Class cls = getEntityClass(entityName);
+		//TODO implement for real
+		return 10;
+	}
 	
 	/**
 	 * Create the dialog.
 	 * @param parent 
 	 */
-	public TradeDialog(Frame parent, Landscape landscape) {
+	public TradeDialog(Frame parent, final Landscape landscape) {
 		super(parent, true);
 		newdialog = this;
+		this.landscape = landscape;
 		
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout());
@@ -63,18 +105,8 @@ public class TradeDialog extends JDialog {
 		{
 			//add other items here
 			//TODO load this from some external file
-			String[] values = new String[] {"Stone", "Ore", "Crystal", "Stonemasonry"};
-			
+
 			for (int i = 0 ; i < values.length; i++) {
-				
-				String clsName = "org.robminfor.engine.entities."+values[i];
-				Class cls = null;
-				try {
-					cls = Class.forName(clsName);
-				} catch (ClassNotFoundException e) {
-					log.error("Unable to find class "+clsName);
-					continue;
-				}
 				
 				JLabel name = new JLabel(values[i]);
 				GridBagConstraints gbc_name = new GridBagConstraints();
@@ -84,17 +116,18 @@ public class TradeDialog extends JDialog {
 				contentPanel.add(name, gbc_name);
 
 				int count = 0;
-				//TODO implement this in a generic fashion over all storage sites
-				Home home = (Home) landscape.getHomeSite().getEntity();
-				for(AbstractEntity thing : home.getContent()){
-					if (cls.isInstance(thing)) {
-						count += 1;
-					}
-				}
+				int buyCost = 0;
+				int sellValue = 0;
+				try {
+					count = getCount(values[i]);
+					buyCost = getBuyCost(values[i]);
+					sellValue = getSellValue(values[i]);
+				} catch (ClassNotFoundException e) {
+					log.error("Problem counting "+values[i], e);
+					continue;
+				}				
 				
-				int buyCost = 200; //TODO implement for real
-				int sellValue = 10; //TODO implement for real
-				
+				//TODO implement as images
 				JLabel lblCount = new JLabel(""+count);
 				GridBagConstraints gbc_count = new GridBagConstraints();
 				gbc_count.gridx = 1;
@@ -138,5 +171,50 @@ public class TradeDialog extends JDialog {
 				});
 			}
 		}
+
+		//refresh information
+		ActionListener refreshListener = new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				//only start a new worker if the last one has finished
+				if (refreshworker == null 
+						|| refreshworker.isDone()) {
+					refreshworker = new SwingWorker<Void, Void>() {
+						protected Void doInBackground() throws Exception {
+							//update counts
+							for (int i = 0 ; i < values.length; i++) {
+								int count = 0;
+								try {
+									count = getCount(values[i]);
+								} catch (ClassNotFoundException e) {
+									log.error("Problem counting "+values[i], e);
+									continue;
+								}
+								counts.get(i).setText(""+count);
+								//if no counts, cant sell
+								if (count == 0) {
+									sells.get(i).setEnabled(false);
+								} else {
+									sells.get(i).setEnabled(true);
+								}
+							}
+							//update if we can afford to buy
+							int cash = landscape.getMoney();
+							for (int i = 0 ; i < values.length; i++) {
+								if (getBuyCost(values[i]) > cash) {
+									buys.get(i).setEnabled(false);
+								} else {
+									buys.get(i).setEnabled(true);
+								}
+							}
+							
+							return null;
+						}	
+					};
+					refreshworker.execute();
+				}
+			}
+		};
+		refreshTimer = new Timer(1, refreshListener);
+		refreshTimer.start();
 	}
 }

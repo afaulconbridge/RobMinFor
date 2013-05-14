@@ -385,11 +385,22 @@ public class Display {
 						|| refreshworker.isDone()){
 					refreshworker = new SwingWorker<Void, Void>() {
 						protected Void doInBackground() throws Exception {
+							//update the visuals
 							long updatetime = System.currentTimeMillis();
 							long updateinterval = updatetime - lastupdate;
 							float updatefraction = ((float)updateinterval) / ((float)updatetimer.getDelay());
 							jpanellandscape.setUpdateFraction(updatefraction);
 							jpanellandscape.repaint();
+							//only enable tools when a game is loaded
+							if (landscape == null) {
+								btnDig.setEnabled(false);
+								btnCreate.setEnabled(false);
+								btnTrade.setEnabled(false);
+							} else {
+								btnDig.setEnabled(true);
+								btnCreate.setEnabled(true);
+								btnTrade.setEnabled(true);
+							}
 							return null;
 						}	
 					};
