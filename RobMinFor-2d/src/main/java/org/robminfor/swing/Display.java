@@ -33,24 +33,24 @@ import java.util.Calendar;
 import javax.swing.JButton;
 
 public class Display {
-
-	private Landscape landscape = null;
 	
 	
-	private Display display;
-	private JFrame frame;
-	private JPanelLandscape jpanellandscape;
-	private JScrollBar depthBar;
-	private JLabel landscapetime;
-	private JLabel landscapedate;
-	private JLabel landscapemoney;
-	
-	private JButton btnDig;
-	private JButton btnCreate;
-	private JButton btnTrade;
+	private final Display display;
+	private final JFrame frame;
+	private final JPanelLandscape jpanellandscape;
+	private final JScrollBar depthBar;
+	private final JLabel landscapetime;
+	private final JLabel landscapedate;
+	private final JLabel landscapemoney;
+	private final JButton btnDig;
+	private final JButton btnCreate;
+	private final JButton btnTrade;
+	private final JMenu mnSpeed;
 	
 	private final ButtonGroup buttonGroupSpeed = new ButtonGroup();
-	
+
+
+	private Landscape landscape = null;
 
 	private long lastupdate;
 	
@@ -79,14 +79,6 @@ public class Display {
 	}
 
 	/**
-	 * Create the application.
-	 */
-	public Display() {
-		initialize();
-		this.display = this;
-	}
-
-	/**
 	 * Wrapper around JPanelLandscape to ensure other controls are updated.
 	 */
 	public void setLandscape(Landscape landscape){
@@ -101,7 +93,9 @@ public class Display {
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	public Display() {
+		this.display = this;
+		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 575, 553);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -168,7 +162,7 @@ public class Display {
 		});
 		mnFile.add(mntmExit);
 		
-		JMenu mnSpeed = new JMenu("Speed");
+		mnSpeed = new JMenu("Speed");
 		menuBar.add(mnSpeed);
 		
 		JRadioButtonMenuItem rdbtnmntmPause = new JRadioButtonMenuItem("Pause");
