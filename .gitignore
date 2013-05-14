@@ -1,1 +1,4 @@
 *.class
+/RobMinFor/target
+/RobMinFor/miglayout-src.zip
+/RobMinFor/miglayout15-swing.jar
