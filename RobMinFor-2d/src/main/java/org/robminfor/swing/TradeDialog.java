@@ -22,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 import org.robminfor.engine.Landscape;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.engine.entities.Home;
+import org.robminfor.engine.entities.IStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,35 +42,30 @@ public class TradeDialog extends JDialog {
 	private String[] values = new String[] {"Stone", "Ore", "Crystal", "Stonemasonry"};
 	private final Landscape landscape;
 	
-	
-	private Class getEntityClass(String entityName) throws ClassNotFoundException {
-		String clsName = "org.robminfor.engine.entities."+entityName;
-		
-		return Class.forName(clsName);
-	}
-	
-	private int getCount(String entityName) throws ClassNotFoundException {
-		Class cls = getEntityClass(entityName);
-
+	private int getCount(String entityName)  {
 		//TODO implement this in a generic fashion over all storage sites
-		int count = 0;
 		Home home = (Home) landscape.getHomeSite().getEntity();
-		for(AbstractEntity thing : home.getContent()){
-			if (cls.isInstance(thing)) {
-				count += 1;
-			}
-		}
-		return count;
+		return home.getCount(entityName);
 	}
 	
-	private int getBuyCost(String entityName) throws ClassNotFoundException {
-		Class cls = getEntityClass(entityName);
+	private void addEntity(String entityName) { 
+		//TODO implement this in a generic fashion over all storage sites
+		Home home = (Home) landscape.getHomeSite().getEntity();
+		home.addEntity(entityName);
+	}
+	
+	private void removeEntity(String entityName) { 
+		//TODO implement this in a generic fashion over all storage sites
+		Home home = (Home) landscape.getHomeSite().getEntity();
+		home.removeEntity(entityName);
+	}
+	
+	private int getBuyCost(String entityName) {
 		//TODO implement for real
 		return 200;
 	}
 	
-	private int getSellValue(String entityName) throws ClassNotFoundException {
-		Class cls = getEntityClass(entityName);
+	private int getSellValue(String entityName) {
 		//TODO implement for real
 		return 10;
 	}
@@ -105,10 +101,12 @@ public class TradeDialog extends JDialog {
 		{
 			//add other items here
 			//TODO load this from some external file
-
+			//TODO abstract over multiple storage entities
+			IStorage storage = (IStorage) landscape.getHomeSite().getEntity();
 			for (int i = 0 ; i < values.length; i++) {
 				
 				JLabel name = new JLabel(values[i]);
+				
 				GridBagConstraints gbc_name = new GridBagConstraints();
 				gbc_name.fill = GridBagConstraints.BOTH;
 				gbc_name.gridx = 0;
@@ -118,14 +116,9 @@ public class TradeDialog extends JDialog {
 				int count = 0;
 				int buyCost = 0;
 				int sellValue = 0;
-				try {
-					count = getCount(values[i]);
-					buyCost = getBuyCost(values[i]);
-					sellValue = getSellValue(values[i]);
-				} catch (ClassNotFoundException e) {
-					log.error("Problem counting "+values[i], e);
-					continue;
-				}				
+				count = getCount(values[i]);
+				buyCost = getBuyCost(values[i]);
+				sellValue = getSellValue(values[i]);
 				
 				//TODO implement as images
 				JLabel lblCount = new JLabel(""+count);
@@ -137,22 +130,20 @@ public class TradeDialog extends JDialog {
 				counts.add(lblCount);
 				
 				JButton btnBuy = new JButton("Buy ($"+buyCost+")");
-				//TODO create action
-				//TODO disable when not applicable
 				GridBagConstraints gbc_buy = new GridBagConstraints();
 				gbc_buy.gridx = 2;
 				gbc_buy.gridy = i+1;
 				contentPanel.add(btnBuy, gbc_buy);
 				buys.add(btnBuy);
+				btnBuy.addActionListener(new BuyListener(values[i]));
 
 				JButton btnSell = new JButton("Sell ($"+sellValue+")");
-				//TODO create action
-				//TODO disable when not applicable
 				GridBagConstraints gbc_sell = new GridBagConstraints();
 				gbc_sell.gridx = 3;
 				gbc_sell.gridy = i+1;
 				contentPanel.add(btnSell, gbc_sell);
 				sells.add(btnSell);
+				btnSell.addActionListener(new SellListener(values[i]));
 			}
 		}
 
@@ -183,12 +174,7 @@ public class TradeDialog extends JDialog {
 							//update counts
 							for (int i = 0 ; i < values.length; i++) {
 								int count = 0;
-								try {
-									count = getCount(values[i]);
-								} catch (ClassNotFoundException e) {
-									log.error("Problem counting "+values[i], e);
-									continue;
-								}
+								count = getCount(values[i]);
 								counts.get(i).setText(""+count);
 								//if no counts, cant sell
 								if (count == 0) {
@@ -216,5 +202,35 @@ public class TradeDialog extends JDialog {
 		};
 		refreshTimer = new Timer(1, refreshListener);
 		refreshTimer.start();
+	}
+	
+	private class BuyListener implements ActionListener {
+		private final String type;
+		
+		public BuyListener(String type) {
+			this.type = type;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			int value = getBuyCost(type);
+			addEntity(type);
+			landscape.changeMoney(-value);
+		}
+	}
+	
+	private class SellListener implements ActionListener {
+		private final String type;
+		
+		public SellListener(String type) {
+			this.type = type;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			int value = getSellValue(type);
+			removeEntity(type);
+			landscape.changeMoney(value);
+		}
 	}
 }

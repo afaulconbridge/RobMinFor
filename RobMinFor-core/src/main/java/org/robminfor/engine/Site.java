@@ -82,7 +82,7 @@ public class Site {
 	}
 	
 	/**
-	 * @return List<Site> sites that are adjacent including diagonals and inside the landscape
+	 * @return List<Site> sites that are adjacent (including diagonals) and inside the landscape
 	 */
 	public List<Site> getAdjacents(){
 		List<Site> adjacents = new ArrayList<Site>();

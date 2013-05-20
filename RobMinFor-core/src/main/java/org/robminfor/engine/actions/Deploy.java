@@ -49,7 +49,7 @@ public class Deploy extends AbstractAction {
         	//pick it up
 			} else {				
 		    	IStorage storage = (IStorage) source.getEntity();
-		    	storage.removeEntity(thing);
+		    	storage.removeEntity(thing.getName());
 		    	agent.setInventory(thing);
 			}
 		//if we are not next to the target, go to it
@@ -95,7 +95,7 @@ public class Deploy extends AbstractAction {
 			return false;
 		}
 		
-		if (agent.getInventory() != thing && !sourceStorage.containsEntity(thing)) {
+		if (agent.getInventory() != thing && !sourceStorage.containsEntity(thing.getName())) {
 			log.warn("thing is not in inventory or source entity storage");
 			return false;
 		}

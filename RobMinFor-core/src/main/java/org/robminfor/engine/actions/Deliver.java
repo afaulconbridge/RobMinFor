@@ -31,7 +31,7 @@ public class Deliver extends AbstractAction {
 	        //we are next to the target
 	    	log.info("Performing deliver");
 	    	IStorage storage = (IStorage) site.getEntity();
-	    	storage.addEntity(agent.getInventory());
+	    	storage.addEntity(agent.getInventory().getName());
 	    	agent.setInventory(null);
 	    	//end this action
 	    	agent.removeAction(this);

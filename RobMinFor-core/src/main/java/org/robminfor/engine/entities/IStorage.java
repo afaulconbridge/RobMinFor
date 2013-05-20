@@ -1,14 +1,12 @@
 package org.robminfor.engine.entities;
 
-import java.util.Collection;
-
 public interface IStorage {
 	
-	public void addEntity(AbstractEntity entity);
+	public void addEntity(String entityName);
 	
-	public void removeEntity(AbstractEntity entity);
-	
-	public Collection<AbstractEntity> getContent();
+	public void removeEntity(String entityName);
 
-	public boolean containsEntity(AbstractEntity thing);
+	public int getCount(String entityName);
+	
+	public boolean containsEntity(String thing);
 }

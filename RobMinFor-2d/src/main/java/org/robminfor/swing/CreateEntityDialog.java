@@ -49,7 +49,7 @@ public class CreateEntityDialog extends JDialog {
 				
 				Site source = landscape.findNearestStorageFor(site, thing);
 				IStorage sourceStorage = (IStorage) source.getEntity();
-				sourceStorage.addEntity(thing);
+				sourceStorage.addEntity(thing.getName());
 				
 				AbstractAction action = new Deploy(source, site, thing);
 				landscape.addAction(action);

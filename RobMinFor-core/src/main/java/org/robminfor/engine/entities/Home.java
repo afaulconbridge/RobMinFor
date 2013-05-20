@@ -3,12 +3,14 @@ package org.robminfor.engine.entities;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Home extends AbstractEntity implements IStorage  {
 	
-	private Collection<AbstractFacility> facilities = new ArrayList<AbstractFacility>(); 
+	private final Collection<AbstractFacility> facilities = new ArrayList<AbstractFacility>(); 
 	
-	private Collection<AbstractEntity> content = new ArrayList<AbstractEntity>();
+	private final Map<String, Integer> content = Collections.synchronizedMap(new HashMap<String, Integer>());
 	
 	public Home() {
 		super();
@@ -35,27 +37,40 @@ public class Home extends AbstractEntity implements IStorage  {
 	}
 
 	@Override
-	public void addEntity(AbstractEntity entity) {
-		//must allow duplicates here because stateless entities use singleton pattern 
-		content.add(entity);
+	public synchronized void addEntity(String entityName) {
+		if (!content.containsKey(entityName)) {
+			content.put(entityName, 1);
+		} else {
+			content.put(entityName, content.get(entityName)+1);
+		}
 	}
 
 	@Override
-	public void removeEntity(AbstractEntity entity) {
-		if (!content.contains(entity)) {
+	public synchronized void removeEntity(String entityName) {
+		if (!containsEntity(entityName)) {
 			throw new IllegalArgumentException("Entitiy not in storage");
 		}
-		content.remove(entity);
+		if (content.get(entityName) == 1) {
+			content.remove(entityName);
+		} else {
+			content.put(entityName, content.get(entityName)-1);
+		}
 	}
 
 	@Override
-	public boolean containsEntity(AbstractEntity thing) {
-		return content.contains(thing);
+	public synchronized int getCount(String entityName) {
+		if (containsEntity(entityName)) {
+			return content.get(entityName);
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
-	public Collection<AbstractEntity> getContent() {
-		return Collections.unmodifiableCollection(content);
+	public synchronized boolean containsEntity(String entityName) {
+		return content.containsKey(entityName);
 	}
+	
+	
 
 }
