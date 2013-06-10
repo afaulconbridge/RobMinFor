@@ -22,4 +22,14 @@ public class Air extends AbstractEntity {
 		return "Air";
 	}
 
+	@Override
+	public int getBuyValue() {
+		return -1;
+	}
+
+	@Override
+	public int getSellValue() {
+		return -1;
+	}
+
 }

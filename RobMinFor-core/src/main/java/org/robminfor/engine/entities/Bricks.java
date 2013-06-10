@@ -22,4 +22,14 @@ public class Bricks extends AbstractEntity {
 		return "Bricks";
 	}
 
+	@Override
+	public int getBuyValue() {
+		return 100;
+	}
+
+	@Override
+	public int getSellValue() {
+		return 10;
+	}
+
 }

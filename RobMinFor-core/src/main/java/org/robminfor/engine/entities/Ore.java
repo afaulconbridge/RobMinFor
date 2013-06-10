@@ -22,4 +22,14 @@ public class Ore extends AbstractEntity {
 		return "Ore";
 	}
 
+	@Override
+	public int getBuyValue() {
+		return 100;
+	}
+
+	@Override
+	public int getSellValue() {
+		return 10;
+	}
+
 }

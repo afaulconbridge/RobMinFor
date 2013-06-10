@@ -70,6 +70,16 @@ public class Home extends AbstractEntity implements IStorage  {
 	public synchronized boolean containsEntity(String entityName) {
 		return content.containsKey(entityName);
 	}
+
+	@Override
+	public int getBuyValue() {
+		return -1;
+	}
+
+	@Override
+	public int getSellValue() {
+		return -1;
+	}
 	
 	
 

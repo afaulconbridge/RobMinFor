@@ -11,4 +11,14 @@ public class Stonemasonry extends AbstractFacility {
 		return "Stonemasonry";
 	}
 
+	@Override
+	public int getBuyValue() {
+		return 1000;
+	}
+
+	@Override
+	public int getSellValue() {
+		return -1;
+	}
+
 }

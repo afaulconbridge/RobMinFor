@@ -22,4 +22,14 @@ public class Stone extends AbstractEntity {
 		return "Stone";
 	}
 
+	@Override
+	public int getBuyValue() {
+		return 20;
+	}
+
+	@Override
+	public int getSellValue() {
+		return 5;
+	}
+
 }

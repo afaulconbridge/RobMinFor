@@ -22,4 +22,14 @@ public class Crystal extends AbstractEntity {
 		return "Crystal";
 	}
 
+	@Override
+	public int getBuyValue() {
+		return 100;
+	}
+
+	@Override
+	public int getSellValue() {
+		return 10;
+	}
+
 }
