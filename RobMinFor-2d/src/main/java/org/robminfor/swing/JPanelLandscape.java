@@ -209,12 +209,12 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        } 
         }
         
-        for (int i = 0; i < landscape.getAgentCount(); i++){
+        for (int i = 0; i < landscape.getAgentCount(); i++) {
         	Agent agent = landscape.getAgents(i);
         	Vect agentposition = agent.getPosition();
-        	if (agentposition.getZ() >= getVisibleZ() &&  agentposition.getZ() <= getVisibleZ()+4
+        	if (agentposition.getZ() >= getVisibleZ() &&  agentposition.getZ() <= getVisibleZ()+viewingDepth
         			&& agentposition.getX() >= visibletileleft-1 && agentposition.getX() <= visibletileright+1
-        			&& agentposition.getY() >= visibletiletop-1 && agentposition.getY() <= visibletilebottom+1){
+        			&& agentposition.getY() >= visibletiletop-1 && agentposition.getY() <= visibletilebottom+1) {
 
         		Image tileimage = null;
                 try {
@@ -223,8 +223,16 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         			log.error("Problem loading Worker");
         			throw new RuntimeException(e);
         		}
-        		if (tileimage != null){
-        			
+                //hide it if is blocked
+                int viewdepth = getVisibleZ();
+                int agentdepth = agentposition.getZ();
+                for (int j = agentdepth-1; j > viewdepth; j--) {
+                	if (landscape.isSolid(agentposition.getX(), agentposition.getY(), j)){
+                		tileimage = null;
+                	}
+                }
+                
+        		if (tileimage != null) {
         			int newpixelx = agentposition.getX()*TILESIZE;
         			int newpixely = agentposition.getY()*TILESIZE;
         			int oldpixelx = oldagentposs.get(i).getX()*TILESIZE;
@@ -232,9 +240,16 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         			
         			int pixelx = (int)(((1.0-updatefraction)*oldpixelx)+((updatefraction)*newpixelx));
         			int pixely = (int)(((1.0-updatefraction)*oldpixely)+((updatefraction)*newpixely));
-        			
-        			g.drawImage(tileimage, pixelx, pixely, null);
-        			//something about this is off - it flickers and twitches a bit
+
+                	g.drawImage(tileimage, pixelx, pixely, null);
+                	//shade it if deep
+                    if (agentdepth > viewdepth) {
+		        		float darkness = (1.0f/viewingDepth) * (agentdepth-viewdepth);
+            			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, darkness));
+            			g.drawImage(getDarkTile(), pixelx, pixely, null);
+            			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+        			} 
+                    //something about this is off - it flickers and twitches a bit
         			//good enough for the moment though
         		}
         	}
@@ -270,7 +285,6 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        g.drawRect(highlightedx*TILESIZE, highlightedy*TILESIZE, TILESIZE, TILESIZE);
         }
         
-        //TODO draw action pending sites
     	g.setStroke(orderedstroke);
     	g.setColor(orderedcolor);
         for (AbstractAction action : landscape.getActions()) {
@@ -281,6 +295,8 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 		        g.drawRect(site.getX()*TILESIZE, site.getY()*TILESIZE, TILESIZE, TILESIZE);
         	}
         }
+        
+        //TODO draw action pending sites
     }  
 
 
