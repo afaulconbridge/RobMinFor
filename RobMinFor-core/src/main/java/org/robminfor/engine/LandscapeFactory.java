@@ -3,10 +3,9 @@ package org.robminfor.engine;
 import java.util.Random;
 
 import org.robminfor.engine.agents.Agent;
-import org.robminfor.engine.entities.Air;
-import org.robminfor.engine.entities.Crystal;
+import org.robminfor.engine.entities.AbstractEntity;
+import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.engine.entities.Home;
-import org.robminfor.engine.entities.Ore;
 import org.robminfor.util.OctaveNoise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,10 @@ public class LandscapeFactory {
 
 	public Landscape generate(int sizex, int sizey, int sizez, int seed) {
 		log.info("Starting landscape generator");
+		AbstractEntity ore = EntityManager.getEntityManager().getEntity("Ore");
+		AbstractEntity crystal = EntityManager.getEntityManager().getEntity("Crystal");
+		AbstractEntity air = EntityManager.getEntityManager().getEntity("Air");
+		
 		Landscape landscape = new Landscape(sizex, sizey, sizez);
 		//specify a surface at 25% depth
 		int surfaceheight = sizez/4;
@@ -35,7 +38,7 @@ public class LandscapeFactory {
 		for (int z = 0; z < surfaceheight; z++) {
 			for (int y = 0; y < sizey; y++) {
 				for (int x = 0; x < sizex; x++) {
-					landscape.getSite(x,y,z).setEntity(Air.getInstance());
+					landscape.getSite(x,y,z).setEntity(air);
 				}
 			}
 		}
@@ -64,10 +67,10 @@ public class LandscapeFactory {
 					//log.info("crystal value "+oreValue+", x = "+x+", y = "+y+", z = "+z);
 					
 					if ( oreValue > target && oreValue > crystalValue) {
-						landscape.getSite(x,y,z).setEntity(Ore.getInstance());
+						landscape.getSite(x,y,z).setEntity(ore);
 						log.info("Ore!");
 					} else if ( crystalValue > target && crystalValue > oreValue) {
-						landscape.getSite(x,y,z).setEntity(Crystal.getInstance());
+						landscape.getSite(x,y,z).setEntity(crystal);
 						log.info("Crystal!");
 					}
 				}

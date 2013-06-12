@@ -17,8 +17,9 @@ import org.robminfor.engine.Site;
 import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.actions.Deploy;
 import org.robminfor.engine.entities.AbstractEntity;
-import org.robminfor.engine.entities.Stonemasonry;
+import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.engine.entities.IStorage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class CreateEntityDialog extends JDialog {
 			for (Site site : selected) {
 				//TODO allow for buying of things rather than magically creating it
 				//TODO allow for selecting of different things
-				AbstractEntity thing = new Stonemasonry();
+				AbstractEntity thing = EntityManager.getEntityManager().getEntity("Stonemasonry");
 				
 				Site source = landscape.findNearestStorageFor(site, thing);
 				IStorage sourceStorage = (IStorage) source.getEntity();

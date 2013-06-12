@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<entities>
+	<entity name="Air" solid="false">
+	</entity>
+	<entity name="Ore" sellValue="10" buyValue="100">
+	</entity>
+	<entity name="Crystal" sellValue="10" buyValue="100">
+	</entity>
+	<entity name="Stone" sellValue="2" buyValue="20">
+	</entity>
+	<entity name="Bricks" sellValue="2" buyValue="20">
+	</entity>
+	<entity name="Stonemasonry">
+		<saleValue>0</saleValue>
+		<buyValue>1000</buyValue>
+		<conversion>
+			<input>Stone</input>
+			<output>Bricks</output>
+		</conversion>
+	</entity>
+</entities>

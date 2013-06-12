@@ -12,7 +12,7 @@ import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.engine.entities.AbstractFacility;
-import org.robminfor.engine.entities.Stone;
+import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.util.Vect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +39,7 @@ public class Landscape {
 	 */
 	public Landscape(int sizex, int sizey, int sizez){
 		super();
+		AbstractEntity stone = EntityManager.getEntityManager().getEntity("Stone");
 		sites = new ArrayList<List<List<Site>>>(sizez);
 		for (int z = 0; z < sizez; z++){
 			sites.add(new ArrayList<List<Site>>(sizey));
@@ -46,7 +47,7 @@ public class Landscape {
 				sites.get(z).add(new ArrayList<Site>(sizex));
 				for (int x = 0; x < sizex; x++){
 					Vect position = new Vect(x,y,z);
-					AbstractEntity entity = Stone.getInstance();
+					AbstractEntity entity = stone;
 					Site site = new Site(entity, position, this);
 					sites.get(z).get(y).add(site);
 				}

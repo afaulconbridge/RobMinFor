@@ -30,7 +30,6 @@ import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.actions.Dig;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
-import org.robminfor.engine.entities.Air;
 import org.robminfor.util.Vect;
 
 public class JPanelLandscape extends JComponent implements Scrollable, MouseListener, MouseMotionListener {
@@ -145,7 +144,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        	if (visible.intersects(tilerect)) {
 	        		Site site = landscape.getSite(x, y, getVisibleZ());
 	        		AbstractEntity entity = site.getEntity();
-	        		if (entity == Air.getInstance()) {
+	        		if (!entity.isSolid()) {
 	        			//air is see-through, so draw the tile underneath
 	        			int depth = 1;
         				AbstractEntity deepentity  = null;
@@ -153,7 +152,7 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	        			while (depth < viewingDepth) {
 	        				deepsite = landscape.getSite(x, y, getVisibleZ()+depth);
 	        				deepentity = deepsite.getEntity();
-	        				if (deepentity == Air.getInstance()) {
+	        				if (!deepentity.isSolid()) {
 		        				depth += 1;
 	        				} else {
 	        					break;

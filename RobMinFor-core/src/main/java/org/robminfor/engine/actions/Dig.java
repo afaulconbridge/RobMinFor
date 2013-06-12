@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.robminfor.engine.Site;
 import org.robminfor.engine.agents.Agent;
-import org.robminfor.engine.entities.Air;
+import org.robminfor.engine.entities.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class Dig extends AbstractAction {
         } else {
             //we are next to the target
         	agent.setInventory(site.getEntity());
-			site.setEntity(Air.getInstance());
+			site.setEntity(EntityManager.getEntityManager().getEntity("Air"));
 			//end this action
         	agent.removeAction(this);
         	//move stuff to drop off
