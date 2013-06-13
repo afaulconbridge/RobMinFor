@@ -1,7 +1,10 @@
 package org.robminfor.engine.entities;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.dom4j.Attribute;
@@ -17,13 +20,26 @@ public class EntityManager {
 	
 	private Map<String, AbstractEntity> entityCache = new HashMap<String, AbstractEntity>();
 	
+	private List<String> entityNames = new ArrayList<String>();
+	
 	protected EntityManager() {
 		SAXReader reader = new SAXReader();
         try {
-			document = reader.read(EntityManager.class.getResource("entities.xml"));
+			document = reader.read(EntityManager.class.getResource("/data/entities.xml"));
 		} catch (DocumentException e) {
 			throw new RuntimeException(e);
 		}
+        
+        Element root = document.getRootElement();
+        for (Iterator i = root.elementIterator(); i.hasNext(); ) {
+            Element element = (Element) i.next();
+            String name = element.attributeValue("name");
+            if (entityNames.contains(name)) {
+            	throw new RuntimeException("Duplicate entity name "+name);
+            } else {
+            	entityNames.add(name);
+            }
+        }
 	}
 	
 	public static EntityManager getEntityManager() {
@@ -44,16 +60,16 @@ public class EntityManager {
 	        for (Iterator i = root.elementIterator(); i.hasNext(); ) {
 	            Element element = (Element) i.next();
 	            if (name.equals(element.attributeValue("name"))) {
-	            	for (Iterator j = root.elementIterator(); j.hasNext();) {
+	            	for (Iterator j = element.attributeIterator(); j.hasNext();) {
 	    	            Attribute attribute = (Attribute) j.next();
 	            		if ("solid".equals(attribute.getName())) {
 	    	            	if ("false".equals(attribute.getStringValue())) {
 	    	            		isSolid = false;
 	    	            	}
 	            		} else if ("buyValue".equals(attribute.getName())) {
-	            			buyValue = Integer.getInteger(attribute.getStringValue());
+	            			buyValue = Integer.parseInt(attribute.getStringValue());
 	            		} else if ("sellValue".equals(attribute.getName())) {
-	    	            	sellValue = Integer.getInteger(attribute.getStringValue());
+	    	            	sellValue = Integer.parseInt(attribute.getStringValue());
 	            		}
 	            	}
 	            }
@@ -66,6 +82,10 @@ public class EntityManager {
 		return entityCache.get(name);
 	}
 	
+	public List<String> getEntityNames() {
+		return Collections.unmodifiableList(entityNames);
+	}
+
 	private class EntityInstance extends AbstractEntity {
 
 		private final String name;
