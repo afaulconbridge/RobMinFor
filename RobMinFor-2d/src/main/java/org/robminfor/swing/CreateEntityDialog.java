@@ -43,6 +43,7 @@ public class CreateEntityDialog extends JDialog {
 	private class OkActionListener implements ActionListener {
 		
 		public void actionPerformed(ActionEvent e) {
+			
 			for (Site site : selected) {
 				//TODO allow for buying of things rather than magically creating it
 				//TODO allow for selecting of different things

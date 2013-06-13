@@ -20,7 +20,9 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import org.robminfor.engine.Landscape;
+import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
+import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.engine.entities.Home;
 import org.robminfor.engine.entities.IStorage;
 import org.slf4j.Logger;
@@ -38,8 +40,10 @@ public class TradeDialog extends JDialog {
 	private Timer refreshTimer;
 	protected SwingWorker<Void, Void> refreshworker;
 	
+	private static final int WORKERCOST = 100;
 	
-	private String[] values = new String[] {"Stone", "Ore", "Crystal", "Stonemasonry"};
+	
+	private List<String> values = EntityManager.getEntityManager().getEntityNames();
 	private final Landscape landscape;
 	
 	private int getCount(String entityName)  {
@@ -61,13 +65,51 @@ public class TradeDialog extends JDialog {
 	}
 	
 	private int getBuyCost(String entityName) {
-		//TODO implement for real
-		return 200;
+		return EntityManager.getEntityManager().getEntity(entityName).getBuyValue();
 	}
 	
 	private int getSellValue(String entityName) {
-		//TODO implement for real
-		return 10;
+		return EntityManager.getEntityManager().getEntity(entityName).getSellValue();
+	}
+	
+	private void addItem(String name, int count, Integer buyCost, Integer sellValue, int pos) {
+
+		JLabel nameLabel = new JLabel(name);
+		
+		GridBagConstraints gbc_name = new GridBagConstraints();
+		gbc_name.fill = GridBagConstraints.BOTH;
+		gbc_name.gridx = 0;
+		gbc_name.gridy = pos;
+		contentPanel.add(nameLabel, gbc_name);
+		
+		//TODO implement as images
+		JLabel lblCount = new JLabel(""+count);
+		GridBagConstraints gbc_count = new GridBagConstraints();
+		gbc_count.gridx = 1;
+		gbc_count.gridy = pos;
+		gbc_count.ipadx = 10; //some padding
+		contentPanel.add(lblCount, gbc_count);
+		counts.add(lblCount);
+		
+		if (buyCost != null) {
+			JButton btnBuy = new JButton("Buy ($"+buyCost+")");
+			GridBagConstraints gbc_buy = new GridBagConstraints();
+			gbc_buy.gridx = 2;
+			gbc_buy.gridy = pos;
+			contentPanel.add(btnBuy, gbc_buy);
+			buys.add(btnBuy);
+			btnBuy.addActionListener(new BuyListener(name));
+		}
+
+		if (sellValue != null) {
+			JButton btnSell = new JButton("Sell ($"+sellValue+")");
+			GridBagConstraints gbc_sell = new GridBagConstraints();
+			gbc_sell.gridx = 3;
+			gbc_sell.gridy = pos;
+			contentPanel.add(btnSell, gbc_sell);
+			sells.add(btnSell);
+			btnSell.addActionListener(new SellListener(name));
+		}
 	}
 	
 	/**
@@ -100,51 +142,22 @@ public class TradeDialog extends JDialog {
 		}
 		{
 			//add other items here
-			//TODO load this from some external file
-			//TODO abstract over multiple storage entities
-			IStorage storage = (IStorage) landscape.getHomeSite().getEntity();
-			for (int i = 0 ; i < values.length; i++) {
+			for (int i = 0 ; i < values.size(); i++) {
+				String name = values.get(i);
+				int count = getCount(name);
+				Integer buyCost = getBuyCost(name);
+				Integer sellValue = getSellValue(name); 
 				
-				JLabel name = new JLabel(values[i]);
-				
-				GridBagConstraints gbc_name = new GridBagConstraints();
-				gbc_name.fill = GridBagConstraints.BOTH;
-				gbc_name.gridx = 0;
-				gbc_name.gridy = i+1;
-				contentPanel.add(name, gbc_name);
-
-				int count = 0;
-				int buyCost = 0;
-				int sellValue = 0;
-				count = getCount(values[i]);
-				buyCost = getBuyCost(values[i]);
-				sellValue = getSellValue(values[i]);
-				
-				//TODO implement as images
-				JLabel lblCount = new JLabel(""+count);
-				GridBagConstraints gbc_count = new GridBagConstraints();
-				gbc_count.gridx = 1;
-				gbc_count.gridy = i+1;
-				gbc_count.ipadx = 10; //some padding
-				contentPanel.add(lblCount, gbc_count);
-				counts.add(lblCount);
-				
-				JButton btnBuy = new JButton("Buy ($"+buyCost+")");
-				GridBagConstraints gbc_buy = new GridBagConstraints();
-				gbc_buy.gridx = 2;
-				gbc_buy.gridy = i+1;
-				contentPanel.add(btnBuy, gbc_buy);
-				buys.add(btnBuy);
-				btnBuy.addActionListener(new BuyListener(values[i]));
-
-				JButton btnSell = new JButton("Sell ($"+sellValue+")");
-				GridBagConstraints gbc_sell = new GridBagConstraints();
-				gbc_sell.gridx = 3;
-				gbc_sell.gridy = i+1;
-				contentPanel.add(btnSell, gbc_sell);
-				sells.add(btnSell);
-				btnSell.addActionListener(new SellListener(values[i]));
+				addItem(name, count, buyCost, sellValue, i+1);
 			}
+		}
+		
+		{
+			String name = "Worker";
+			int count = landscape.getAgentCount();
+			Integer buyCost = 10000; //manually sync with BuyListener
+			
+			addItem(name, count, buyCost, null, values.size()+1);
 		}
 
 		{
@@ -171,26 +184,36 @@ public class TradeDialog extends JDialog {
 						|| refreshworker.isDone()) {
 					refreshworker = new SwingWorker<Void, Void>() {
 						protected Void doInBackground() throws Exception {
+							
 							//update counts
-							for (int i = 0 ; i < values.length; i++) {
-								int count = 0;
-								count = getCount(values[i]);
+							for (int i = 0 ; i < values.size(); i++) {
+								int count = getCount(values.get(i));
 								counts.get(i).setText(""+count);
-								//if no counts, cant sell
+								//if no counts, can't sell
 								if (count == 0) {
 									sells.get(i).setEnabled(false);
 								} else {
 									sells.get(i).setEnabled(true);
 								}
 							}
+							//update count of workers
+							counts.get(values.size()).setText(""+landscape.getAgentCount());
+							
+							
 							//update if we can afford to buy
 							int cash = landscape.getMoney();
-							for (int i = 0 ; i < values.length; i++) {
-								if (getBuyCost(values[i]) > cash) {
+							for (int i = 0 ; i < values.size(); i++) {
+								if (getBuyCost(values.get(i)) > cash) {
 									buys.get(i).setEnabled(false);
 								} else {
 									buys.get(i).setEnabled(true);
 								}
+							}
+							//update worker buy button
+							if (WORKERCOST > cash) {
+								buys.get(values.size()).setEnabled(false);
+							} else {
+								buys.get(values.size()).setEnabled(true);
 							}
 							
 							return null;
@@ -213,9 +236,15 @@ public class TradeDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			int value = getBuyCost(type);
-			addEntity(type);
-			landscape.changeMoney(-value);
+			if ("Worker".equals(this.type)) {
+				Agent agent = new Agent(landscape.getHomeSite());
+				landscape.addAgent(agent);
+				landscape.changeMoney(-10000); //manually sync with dialog
+			} else {
+				int value = getBuyCost(type);
+				addEntity(type);
+				landscape.changeMoney(-value);
+			}
 		}
 	}
 	
