@@ -39,6 +39,8 @@ public class LandscapeFactory {
 			for (int y = 0; y < sizey; y++) {
 				for (int x = 0; x < sizex; x++) {
 					landscape.getSite(x,y,z).setEntity(air);
+					//actually, limited visibility doesn't really help gameplay
+					landscape.getSite(x,y,z).setVisible();
 				}
 			}
 		}
