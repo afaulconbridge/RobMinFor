@@ -27,15 +27,15 @@ public class MoveTo extends AbstractAction {
 	public void doAction(Agent agent) {
         //check if we can complete this action
         if (!isValid(agent)) {
-        	log.info("Aborting moveto, invalid");
+        	log.trace("Aborting moveto, invalid");
         	agent.removeActionsOfType(MoveTo.class);
         } else if (!agent.getSite().isTransitable(site)) {
             //further away, need to pathfind
-        	log.info("Navigating moveto");
+        	log.trace("Navigating moveto");
         	agent.removeActionsOfType(MoveTo.class);
         } else {
             //we are next to the target
-        	log.info("Completing moveto");
+        	log.trace("Completing moveto");
         	agent.setSite(this.site);
         	agent.removeAction(this);
         }

@@ -78,13 +78,13 @@ public class Pathfinder {
 		
 		if (!closed.contains(end)){
 			//no path
-			log.info("Unable to find path from "+start+" to "+end);
+			log.warn("Unable to find path from "+start+" to "+end);
 			return null;
 		} else {
 			List<Site> path = getPath(end, start, parents);
-			log.info("Found path from "+start+" to "+end);
+			//log.trace("Found path from "+start+" to "+end);
 			for (Site site : path) {
-				log.info("  "+site);
+				//log.trace("  "+site);
 			}
 			if (path.contains(null)){
 				throw new RuntimeException("path should not contain null(s)");
