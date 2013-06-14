@@ -234,11 +234,19 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         		if (tileimage != null) {
         			int newpixelx = agentposition.getX()*TILESIZE;
         			int newpixely = agentposition.getY()*TILESIZE;
-        			int oldpixelx = oldagentposs.get(i).getX()*TILESIZE;
-        			int oldpixely = oldagentposs.get(i).getY()*TILESIZE;
-        			
-        			int pixelx = (int)(((1.0-updatefraction)*oldpixelx)+((updatefraction)*newpixelx));
-        			int pixely = (int)(((1.0-updatefraction)*oldpixely)+((updatefraction)*newpixely));
+        			int pixelx;
+        			int pixely;
+        			if (i < oldagentposs.size()) {
+	        			int oldpixelx = oldagentposs.get(i).getX()*TILESIZE;
+	        			int oldpixely = oldagentposs.get(i).getY()*TILESIZE;
+	        			
+	        			pixelx = (int)(((1.0-updatefraction)*oldpixelx)+((updatefraction)*newpixelx));
+	        			pixely = (int)(((1.0-updatefraction)*oldpixely)+((updatefraction)*newpixely));
+        			} else {
+        				//first time this agent is being drawn
+        				pixelx = newpixelx;
+        				pixely = newpixely;
+        			}
 
                 	g.drawImage(tileimage, pixelx, pixely, null);
                 	//shade it if deep

@@ -155,12 +155,13 @@ public class Landscape {
 		}
 	}
 
-	public void changeMoney(int difference) {
+	public boolean changeMoney(int difference) {
 		synchronized(this.money) {
 			if (this.money+difference < 0) {
-				throw new IllegalArgumentException("No Debts allowed!");
+				return false;
 			}
 			this.money += difference;
+			return true;
 		}
 	}
 	

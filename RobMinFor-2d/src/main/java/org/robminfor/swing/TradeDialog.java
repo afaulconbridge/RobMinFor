@@ -265,16 +265,18 @@ public class TradeDialog extends JDialog {
 				
 				if (sites.size() > 0) {
 					Random rng = new Random();
-					
-					homeSite = sites.get(rng.nextInt(sites.size()));
-					Agent agent = new Agent(homeSite);
-					landscape.addAgent(agent);
-					landscape.changeMoney(-WORKERCOST); //manually sync with dialog
+					if (landscape.changeMoney(-WORKERCOST)) {
+						homeSite = sites.get(rng.nextInt(sites.size()));
+						Agent agent = new Agent(homeSite);
+						landscape.addAgent(agent);
+						landscape.changeMoney(-WORKERCOST); 
+					}
 				}
 			} else {
 				int value = getBuyCost(type);
-				addEntity(type);
-				landscape.changeMoney(-value);
+				if (landscape.changeMoney(-value)){
+					addEntity(type);
+				}
 			}
 		}
 	}
