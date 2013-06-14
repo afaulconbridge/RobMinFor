@@ -45,15 +45,8 @@ public class CreateEntityDialog extends JDialog {
 		public void actionPerformed(ActionEvent e) {
 			
 			for (Site site : selected) {
-				//TODO allow for buying of things rather than magically creating it
 				//TODO allow for selecting of different things
-				AbstractEntity thing = EntityManager.getEntityManager().getEntity("Stonemasonry");
-				
-				Site source = landscape.findNearestStorageFor(site, thing);
-				IStorage sourceStorage = (IStorage) source.getEntity();
-				sourceStorage.addEntity(thing.getName());
-				
-				AbstractAction action = new Deploy(source, site, thing);
+				AbstractAction action = new Deploy(site, "Stonemasonry");
 				landscape.addAction(action);
 				log.info("creating Deploy of Stonemasonry");
 			}

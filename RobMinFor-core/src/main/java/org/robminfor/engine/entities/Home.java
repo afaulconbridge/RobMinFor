@@ -46,7 +46,7 @@ public class Home extends AbstractEntity implements IStorage  {
 	}
 
 	@Override
-	public synchronized void removeEntity(String entityName) {
+	public synchronized AbstractEntity removeEntity(String entityName) {
 		if (!containsEntity(entityName)) {
 			throw new IllegalArgumentException("Entitiy not in storage");
 		}
@@ -55,6 +55,7 @@ public class Home extends AbstractEntity implements IStorage  {
 		} else {
 			content.put(entityName, content.get(entityName)-1);
 		}
+		return EntityManager.getEntityManager().getEntity(entityName);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package org.robminfor.engine.actions;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
+import org.robminfor.engine.entities.Home;
 import org.robminfor.engine.entities.IStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,30 +11,27 @@ import org.slf4j.LoggerFactory;
 public class Deploy extends AbstractAction {
 
 	private final Site target;
-	private final Site source;
-	private final AbstractEntity thing;
+	private Site source;
+	private final String name;
 	
     private Logger log = LoggerFactory.getLogger(getClass());
 
-	public Deploy(Site source, Site target, AbstractEntity thing) {
+	public Deploy(Site target, String name) {
 		super();
-		if (source == null) {
-			throw new IllegalArgumentException("source must not be null");
-		}
 		if (target == null) {
 			throw new IllegalArgumentException("target must not be null");
 		}
-		if (thing == null) {
-			throw new IllegalArgumentException("thing must not be null");
+		if (name == null) {
+			throw new IllegalArgumentException("name must not be null");
 		}
-		this.source = source;
 		this.target = target;
-		this.thing = thing;
+		this.name = name;
 	}
 	
 	private void abort(Agent agent) {
     	log.info("Aborting deploy");
     	agent.removeAction(this);
+    	source = null;
 	}
 	
 	@Override
@@ -41,17 +39,25 @@ public class Deploy extends AbstractAction {
         //check if we can complete this action
 		if (!isValid(agent)) {
 			abort(agent);
-    	//check if we have collected it
-		} else if (agent.getInventory() != thing) {
+		//check if we are carying something else we need to drop off
+		} else if (agent.getInventory() != null && !name.equals(agent.getInventory().getName())) {
+			Site site = target.getLandscape().findNearestStorageFor(agent.getSite(), agent.getInventory());
+			agent.addAction(new Deliver(site));
+    	//check if we have not collected it yet
+		} else if (agent.getInventory() == null || !name.equals(agent.getInventory().getName())) {
 			//go to the source
+			if (source == null) {
+				//TODO implement this in a generic fashion over all storage sites
+				source = agent.getSite().getLandscape().getHomeSite();
+			}
 			if (!agent.getSite().isAccessible(source)) {
 	        	agent.addAction(new NavigateTo(source));
         	//pick it up
 			} else {				
 		    	IStorage storage = (IStorage) source.getEntity();
-		    	storage.removeEntity(thing.getName());
-		    	agent.setInventory(thing);
+		    	agent.setInventory(storage.removeEntity(name));
 			}
+		//we must be carrying the thing to deploy
 		//if we are not next to the target, go to it
 		} else if (!agent.getSite().isAccessible(target)) {
         	agent.addAction(new NavigateTo(target));
@@ -66,12 +72,12 @@ public class Deploy extends AbstractAction {
 
 	@Override
 	public boolean isValid() {
-		
-		
-		synchronized(IStorage.class) {
-			if (!IStorage.class.isInstance(source.getEntity())) {
-				log.warn("Source entity is not an IStorage");
-				return false;
+		if (source != null) {
+			synchronized(IStorage.class) {
+				if (!IStorage.class.isInstance(source.getEntity())) {
+					log.warn("Source entity is not an IStorage");
+					return false;
+				}
 			}
 		}
 		//TODO add some more criteria here
@@ -83,20 +89,10 @@ public class Deploy extends AbstractAction {
 		if (!isValid()) {
 			return false;
 		}
-		
-		IStorage sourceStorage = null;
-		synchronized(IStorage.class) {
-			if (IStorage.class.isInstance(source.getEntity())) {
-				sourceStorage = (IStorage) (source.getEntity());
-			}
-		}
-		if (sourceStorage == null) {
-			log.warn("Source entity is null for IStorage");
-			return false;
-		}
-		
-		if (agent.getInventory() != thing && !sourceStorage.containsEntity(thing.getName())) {
-			log.warn("thing is not in inventory or source entity storage");
+
+		//check we are not deploying to our current location
+		if (source != null && agent.getSite() == source) {
+			log.warn("Trying to take from site of agent");
 			return false;
 		}
 		

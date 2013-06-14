@@ -4,7 +4,7 @@ public interface IStorage {
 	
 	public void addEntity(String entityName);
 	
-	public void removeEntity(String entityName);
+	public AbstractEntity removeEntity(String entityName);
 
 	public int getCount(String entityName);
 	
