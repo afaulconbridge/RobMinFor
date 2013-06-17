@@ -20,11 +20,11 @@ import org.slf4j.LoggerFactory;
 public class Landscape {
 
 	private List<List<List<Site>>> sites;
-	private List<Agent> agents  = new ArrayList<Agent>();
-	private List<AbstractAction> actions  = new LinkedList<AbstractAction>();
+	private List<Agent> agents  = Collections.synchronizedList(new ArrayList<Agent>());
+	private List<AbstractAction> actions  = Collections.synchronizedList(new LinkedList<AbstractAction>());
 
 	private Site homeSite = null;
-	private Collection<AbstractFacility> facilities = new LinkedList<AbstractFacility>();
+	private Collection<AbstractFacility> facilities = Collections.synchronizedList(new LinkedList<AbstractFacility>());
 	private Integer money = 1000;
 	
 	private Calendar calendar = new GregorianCalendar(3141, 5, 9, 2, 6);
@@ -55,7 +55,7 @@ public class Landscape {
 		}
 	}
 
-	public void update() {
+	public synchronized void update() {
 		calendar.add(Calendar.MINUTE, 1);
 		
 		for (Agent agent : agents){
@@ -63,25 +63,25 @@ public class Landscape {
 		}
 	}
 	
-	public Agent getAgents(int i){
+	public synchronized Agent getAgents(int i){
 		return agents.get(i);		
 	}
 	
-	public int getAgentCount(){
+	public synchronized int getAgentCount(){
 		return agents.size();		
 	}
 	
-	public void addAgent(Agent agent){
+	public synchronized void addAgent(Agent agent){
 		agents.add(agent);
 	}
 	
-	public void addAction(AbstractAction action) {
+	public synchronized void addAction(AbstractAction action) {
 		if(!actions.contains(action) && action.isValid()){
 			actions.add(action);
 		}
 	}
 	
-	public AbstractAction getActionForAgent(Agent agent) {
+	public synchronized AbstractAction getActionForAgent(Agent agent) {
 		for (int i = 0; i < actions.size(); i++) {
 			AbstractAction action = actions.get(i);
 			if (action.isValid(agent)) {
@@ -92,11 +92,11 @@ public class Landscape {
 		return null;
 	}
 	
-	public Site getSite(Vect position){
+	public synchronized Site getSite(Vect position){
 		return getSite(position.getX(), position.getY(), position.getZ());
 	}
 	
-	public Site getSite(int x, int y, int z) {
+	public synchronized Site getSite(int x, int y, int z) {
 		if (x < 0 || x >= getSizeX()){
 			return null;
 		} else if (y < 0 || y >= getSizeY()){
@@ -108,23 +108,23 @@ public class Landscape {
 		return sites.get(z).get(y).get(x);
 	}
 
-	public int getSizeX() {
+	public synchronized int getSizeX() {
 		return sites.get(0).get(0).size();
 	}
 
-	public int getSizeY() {
+	public synchronized int getSizeY() {
 		return sites.get(0).size();
 	}
 
-	public int getSizeZ() {
+	public synchronized int getSizeZ() {
 		return sites.size();
 	}
 	
-	public boolean isSolid(Vect position){
+	public synchronized boolean isSolid(Vect position){
 		return isSolid(position.getX(), position.getY(), position.getZ());
 	}
 
-	public boolean isSolid(int x, int y, int z) {
+	public synchronized boolean isSolid(int x, int y, int z) {
 		Site site = sites.get(z).get(y).get(x);
 		if (site == null){
 			return true;
@@ -133,29 +133,29 @@ public class Landscape {
 		}
 	}
 	
-	public Calendar getCalendar() {
+	public synchronized Calendar getCalendar() {
 		return calendar;
 	}
 
-	public List<Site> findPath(Site start, Site end) {
+	public synchronized List<Site> findPath(Site start, Site end) {
 		return pathfinder.findPath(start, end);
 	}
 	
-	public void setHomeSite(Site site) {
+	public synchronized void setHomeSite(Site site) {
 		this.homeSite = site;
 	}
 	
-	public Site getHomeSite() {
+	public synchronized Site getHomeSite() {
 		return homeSite;
 	}
 	
-	public int getMoney() {
+	public synchronized int getMoney() {
 		synchronized(this.money) {
 			return money;
 		}
 	}
 
-	public boolean changeMoney(int difference) {
+	public synchronized boolean changeMoney(int difference) {
 		synchronized(this.money) {
 			if (this.money+difference < 0) {
 				return false;
@@ -165,17 +165,17 @@ public class Landscape {
 		}
 	}
 	
-	public List<AbstractAction> getActions() {
+	public synchronized List<AbstractAction> getActions() {
 		return Collections.unmodifiableList(actions);
 	}
 
-	public Site findNearestStorageFor(Site site, AbstractEntity entity) {
+	public synchronized Site findNearestStorageFor(Site site, AbstractEntity entity) {
 		//for the moment, Home is the only storage
 		return getHomeSite();
 		//TODO implement for real
 	}
 	
-	public void addFacility(AbstractFacility facility) {
+	public synchronized void addFacility(AbstractFacility facility) {
 		if (!facilities.contains(facility)) {
 			facilities.add(facility);
 		} else {
@@ -183,7 +183,7 @@ public class Landscape {
 		}
 	}
 	
-	public void removeFacility(AbstractFacility facility) {
+	public synchronized void removeFacility(AbstractFacility facility) {
 		if (facilities.contains(facility)) {
 			facilities.add(facility);
 		} else {
