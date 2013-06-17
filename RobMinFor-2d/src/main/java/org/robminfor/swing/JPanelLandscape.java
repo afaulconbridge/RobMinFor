@@ -42,7 +42,6 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	public Landscape landscape = null;
 	
 	private int visiblez = 0;
-	private List<Vect> oldagentposs = new ArrayList<Vect>();
 	
 	private Integer highlightedx = null;
 	private Integer highlightedy = null;
@@ -102,12 +101,6 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 		
 		revalidate();
 		repaint();
-		
-		//store old agent positions AFTER we have drawn them
-		oldagentposs = new ArrayList<Vect>(landscape.getAgentCount());
-		for (int i = 0; i < landscape.getAgentCount(); i++) {
-			oldagentposs.add(landscape.getAgents(i).getPosition());	
-		}
 	}
 	
 	public List<Site> getSelected() {
@@ -210,10 +203,11 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         
         for (int i = 0; i < landscape.getAgentCount(); i++) {
         	Agent agent = landscape.getAgents(i);
-        	Vect agentposition = agent.getPosition();
-        	if (agentposition.getZ() >= getVisibleZ() &&  agentposition.getZ() <= getVisibleZ()+viewingDepth
-        			&& agentposition.getX() >= visibletileleft-1 && agentposition.getX() <= visibletileright+1
-        			&& agentposition.getY() >= visibletiletop-1 && agentposition.getY() <= visibletilebottom+1) {
+        	Vect agentPosition = agent.getPosition();
+        	Vect agentOldPosition = agent.getPreviousSite().getPosition();
+        	if (agentPosition.getZ() >= getVisibleZ() &&  agentPosition.getZ() <= getVisibleZ()+viewingDepth
+        			&& agentPosition.getX() >= visibletileleft-1 && agentPosition.getX() <= visibletileright+1
+        			&& agentPosition.getY() >= visibletiletop-1 && agentPosition.getY() <= visibletilebottom+1) {
 
         		Image tileimage = null;
                 try {
@@ -224,29 +218,30 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         		}
                 //hide it if is blocked
                 int viewdepth = getVisibleZ();
-                int agentdepth = agentposition.getZ();
+                int agentdepth = agentPosition.getZ();
                 for (int j = agentdepth-1; j > viewdepth; j--) {
-                	if (landscape.isSolid(agentposition.getX(), agentposition.getY(), j)){
+                	if (landscape.isSolid(agentPosition.getX(), agentPosition.getY(), j)){
                 		tileimage = null;
                 	}
                 }
                 
         		if (tileimage != null) {
-        			int newpixelx = agentposition.getX()*TILESIZE;
-        			int newpixely = agentposition.getY()*TILESIZE;
+        			int newpixelx = agentPosition.getX()*TILESIZE;
+        			int newpixely = agentPosition.getY()*TILESIZE;
         			int pixelx;
         			int pixely;
-        			if (i < oldagentposs.size()) {
-	        			int oldpixelx = oldagentposs.get(i).getX()*TILESIZE;
-	        			int oldpixely = oldagentposs.get(i).getY()*TILESIZE;
+        			
+        			if (agentOldPosition != agentPosition) {
+	        			int oldpixelx = agentOldPosition.getX()*TILESIZE;
+	        			int oldpixely = agentOldPosition.getY()*TILESIZE;
 	        			
 	        			pixelx = (int)(((1.0-updatefraction)*oldpixelx)+((updatefraction)*newpixelx));
 	        			pixely = (int)(((1.0-updatefraction)*oldpixely)+((updatefraction)*newpixely));
         			} else {
-        				//first time this agent is being drawn
-        				pixelx = newpixelx;
-        				pixely = newpixely;
+            			pixelx = newpixelx;
+            			pixely = newpixely;
         			}
+        			
 
                 	g.drawImage(tileimage, pixelx, pixely, null);
                 	//shade it if deep
@@ -296,7 +291,8 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
     	g.setColor(orderedcolor);
         for (AbstractAction action : landscape.getActions()) {
         	Site site = action.getSite();
-        	if (site.getZ() == getVisibleZ()
+        	if (site != null
+        			&& site.getZ() == getVisibleZ()
         			&& site.getX() >= visibletileleft-1 && site.getX() <= visibletileright+1
         			&& site.getY() >= visibletiletop-1 && site.getY() <= visibletilebottom+1){
 		        g.drawRect(site.getX()*TILESIZE, site.getY()*TILESIZE, TILESIZE, TILESIZE);
@@ -350,10 +346,6 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	}
 	
 	public void update(){
-		oldagentposs = new ArrayList<Vect>(landscape.getAgentCount());
-		for (int i = 0; i < landscape.getAgentCount(); i++){
-			oldagentposs.add(landscape.getAgents(i).getPosition());	
-		}
 		landscape.update();
 	}
 

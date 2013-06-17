@@ -11,37 +11,44 @@ import org.robminfor.util.Vect;
 
 public class Agent {
 	private Site site;
+	private Site previousSite;
 	private final List<AbstractAction> actions = new ArrayList<AbstractAction>();
 	private AbstractEntity inventory = null;
 
 	public Agent(Site site) {
-		setSite(site);
-	}
-
-	public void setSite(Site site) {
-		if (site == null) {
-			throw new IllegalArgumentException("Agent cannot be at a null site");
-		}
+		this.previousSite = site;
 		this.site = site;
 	}
 
-	public Site getSite() {
+	public synchronized void setSite(Site site) {
+		if (site == null) {
+			throw new IllegalArgumentException("Agent cannot be at a null site");
+		}
+		this.previousSite = this.site;
+		this.site = site;
+	}
+
+	public synchronized Site getSite() {
 		return site;
 	}
 
-	public Vect getPosition() {
+	public synchronized Site getPreviousSite() {
+		return previousSite;
+	}
+
+	public synchronized Vect getPosition() {
 		return getSite().getPosition();
 	}
 
-	public void removeAction(AbstractAction action) {
+	public synchronized void removeAction(AbstractAction action) {
 		actions.remove(action);
 	}
 
-	public void addAction(AbstractAction action) {
+	public synchronized void addAction(AbstractAction action) {
 		actions.add(0, action);
 	}
 
-	public void removeActionsOfType(Class<? extends AbstractAction> t) {
+	public synchronized void removeActionsOfType(Class<? extends AbstractAction> t) {
 		List<AbstractAction> toremove = new ArrayList<AbstractAction>();
 		for (AbstractAction a : actions) {
 			if (t.isInstance(a)) {
@@ -53,15 +60,16 @@ public class Agent {
 		}
 	}
 
-	public AbstractEntity getInventory() {
+	public synchronized AbstractEntity getInventory() {
 		return inventory;
 	}
 
-	public void setInventory(AbstractEntity inventory) {
+	public synchronized void setInventory(AbstractEntity inventory) {
 		this.inventory = inventory;
 	}
 
-	public void update() {
+	public synchronized void update() {
+		this.previousSite = this.site;
 		//if we are standing over something non-solid, fall
 		if (!site.isWalkable()) {
 			Site target = site.getLandscape().getSite(site.getX(), site.getY(), site.getZ()+1);
@@ -97,13 +105,13 @@ public class Agent {
 	}
 	
 	/**
-	 * The return value from this is typically used by the renderer to assiciate an image 
+	 * The return value from this is typically used by the renderer to associate an image 
 	 * or other graphic with a worker.
 	 * 
 	 * return @String identifying what worker this is
 	 * @return
 	 */
-	public String getName() {
+	public synchronized String getName() {
 		return "Worker";
 	}
 
