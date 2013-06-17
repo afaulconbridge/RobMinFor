@@ -9,7 +9,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -23,11 +22,11 @@ import javax.swing.border.EmptyBorder;
 
 import org.robminfor.engine.Landscape;
 import org.robminfor.engine.Site;
+import org.robminfor.engine.actions.Buy;
+import org.robminfor.engine.actions.Sell;
 import org.robminfor.engine.agents.Agent;
-import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.engine.entities.Home;
-import org.robminfor.engine.entities.IStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,6 @@ public class TradeDialog extends JDialog {
 	
 	private static final int WORKERCOST = 100;
 	
-	
 	private List<String> values = EntityManager.getEntityManager().getEntityNames();
 	private final Landscape landscape;
 	
@@ -53,18 +51,6 @@ public class TradeDialog extends JDialog {
 		//TODO implement this in a generic fashion over all storage sites
 		Home home = (Home) landscape.getHomeSite().getEntity();
 		return home.getCount(entityName);
-	}
-	
-	private void addEntity(String entityName) { 
-		//TODO implement this in a generic fashion over all storage sites
-		Home home = (Home) landscape.getHomeSite().getEntity();
-		home.addEntity(entityName);
-	}
-	
-	private void removeEntity(String entityName) { 
-		//TODO implement this in a generic fashion over all storage sites
-		Home home = (Home) landscape.getHomeSite().getEntity();
-		home.removeEntity(entityName);
 	}
 	
 	private int getBuyCost(String entityName) {
@@ -275,7 +261,7 @@ public class TradeDialog extends JDialog {
 			} else {
 				int value = getBuyCost(type);
 				if (landscape.changeMoney(-value)){
-					addEntity(type);
+					landscape.addAction(new Buy(type));
 				}
 			}
 		}
@@ -290,9 +276,7 @@ public class TradeDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			int value = getSellValue(type);
-			removeEntity(type);
-			landscape.changeMoney(value);
+			landscape.addAction(new Sell(type));
 		}
 	}
 }
