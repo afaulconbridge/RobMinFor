@@ -16,7 +16,7 @@ public class Pathfinder {
 	
 	public List<Site> findPath(Site start, Site end){
 		
-		log.info("Finding path");
+		log.trace("Finding path");
 		
 		Map<Site, Site> parents = new HashMap<Site, Site>();
 		Map<Site, Float> f = new HashMap<Site, Float>();
@@ -34,7 +34,7 @@ public class Pathfinder {
 		while (!closed.contains(end) && open.size() > 0){
 			Site current = open.poll();
 			closed.add(current);
-			//log.info("foo "+current);
+			log.trace("foo "+current);
 			//look at all adjacent sites
 			for(Site adjacent : current.getAdjacents()){
 				if (adjacent != end && !current.isTransitable(adjacent)){

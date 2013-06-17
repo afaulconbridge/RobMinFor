@@ -25,7 +25,7 @@ public class NavigateTo extends AbstractAction {
         	agent.removeAction(this);
         } else if (!agent.getSite().isTransitable(site)) {
             //further away, need to pathfind
-        	log.info("Navigating NavigateTo");
+        	log.trace("Navigating NavigateTo");
             //remove any moveto actions
         	agent.removeActionsOfType(MoveTo.class);
         	agent.removeAction(this);
@@ -43,13 +43,13 @@ public class NavigateTo extends AbstractAction {
             	//add the actions in reverse order because actions are a stack
             	for (int i = path.size()-2; i >= 1; i--){
                 	Site loc = path.get(i);
-                	log.info("loc = "+loc);
+                	log.trace("loc = "+loc);
                 	agent.addAction(new MoveTo(path.get(i)));
                 }
             }
         } else {
             //we are next to the target
-        	log.info("Completed NavigateTo");
+        	log.trace("Completed NavigateTo");
         	agent.removeAction(this);
         }
             

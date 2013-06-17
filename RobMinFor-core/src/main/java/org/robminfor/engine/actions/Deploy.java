@@ -2,8 +2,6 @@ package org.robminfor.engine.actions;
 
 import org.robminfor.engine.Site;
 import org.robminfor.engine.agents.Agent;
-import org.robminfor.engine.entities.AbstractEntity;
-import org.robminfor.engine.entities.Home;
 import org.robminfor.engine.entities.IStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +53,9 @@ public class Deploy extends AbstractAction {
         	//pick it up
 			} else {				
 		    	IStorage storage = (IStorage) source.getEntity();
-		    	agent.setInventory(storage.removeEntity(name));
+		    	if (storage.containsEntity(name)) {
+		    		agent.setInventory(storage.removeEntity(name));
+		    	}
 			}
 		//we must be carrying the thing to deploy
 		//if we are not next to the target, go to it
@@ -77,7 +77,20 @@ public class Deploy extends AbstractAction {
 				if (!IStorage.class.isInstance(source.getEntity())) {
 					log.warn("Source entity is not an IStorage");
 					return false;
+				} else {
+					IStorage sourceStorage = (IStorage) source.getEntity();
+					if (!sourceStorage.containsEntity(name)) {
+						log.warn("Source entity does not contain "+name);
+						return false;
+					}
 				}
+			}
+		} else {
+			//TODO implement this in a generic fashion over all storage sites
+			IStorage sourceStorage = (IStorage) target.getLandscape().getHomeSite().getEntity();
+			if (!sourceStorage.containsEntity(name)) {
+				log.warn("No possible source entity contains "+name);
+				return false;
 			}
 		}
 		//TODO add some more criteria here

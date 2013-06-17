@@ -11,7 +11,7 @@ public class Deliver extends AbstractAction {
 	private final Site site;
 	
     private Logger log = LoggerFactory.getLogger(getClass());
-
+	
 	public Deliver(Site site) {
 		super();
 		this.site = site;
@@ -21,15 +21,15 @@ public class Deliver extends AbstractAction {
 	public void doAction(Agent agent) {
         //check if we can complete this action
 		if (!isValid(agent)){
-        	log.info("Aborting deliver");
+        	log.warn("Aborting deliver");
         	agent.removeAction(this);
 		} else if (!agent.getSite().isAccessible(site)) {
 	        //further away, need to pathfind
-	    	log.info("Navigating to deliver");
+	    	log.warn("Navigating to deliver");
         	agent.addAction( new NavigateTo(site));
 	    } else {
 	        //we are next to the target
-	    	log.info("Performing deliver");
+	    	log.warn("Performing deliver");
 	    	IStorage storage = (IStorage) site.getEntity();
 	    	storage.addEntity(agent.getInventory().getName());
 	    	agent.setInventory(null);
