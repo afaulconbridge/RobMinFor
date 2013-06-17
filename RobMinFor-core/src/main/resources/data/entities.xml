@@ -5,9 +5,7 @@
 	<entity name="Crystal" sellValue="10" buyValue="100" />
 	<entity name="Stone" sellValue="2" buyValue="20" />
 	<entity name="Bricks" sellValue="2" buyValue="20" />
-	<entity name="Stonemasonry">
-		<saleValue>0</saleValue>
-		<buyValue>1000</buyValue>
+	<entity name="Stonemasonry" buyValue="1000" >
 		<conversion>
 			<input>Stone</input>
 			<output>Bricks</output>
