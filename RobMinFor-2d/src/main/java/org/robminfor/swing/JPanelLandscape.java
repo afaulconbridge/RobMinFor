@@ -122,6 +122,9 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         }
                 
         Rectangle visible = getVisibleRect();
+		g.setColor(Color.BLACK);
+		g.fillRect(visible.x, visible.y, visible.width, visible.height);
+		
         //precalc what tiles we can see
         int visibletileleft = visible.x/TILESIZE;
         int visibletileright = visibletileleft+(visible.width/TILESIZE)+2;
@@ -132,133 +135,97 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         
         final int viewingDepth = 4;
         
-        for (int y = visibletiletop; y < visibletilebottom; y++) {
-        	int pixely = y*TILESIZE;
-	        for (int x = visibletileleft; x < visibletileright; x++) {
-	        	int pixelx = x*TILESIZE;
-	        	Rectangle tilerect = new Rectangle(pixelx, pixely, TILESIZE, TILESIZE);
-	        	if (visible.intersects(tilerect)) {
-	        		Site site = landscape.getSite(x, y, getVisibleZ());
-	        		AbstractEntity entity = site.getEntity();
-	        		if (!entity.isSolid()) {
-	        			//air is see-through, so draw the tile underneath
-	        			int depth = 1;
-        				AbstractEntity deepentity  = null;
-        				Site deepsite = null;
-	        			while (depth < viewingDepth) {
-	        				deepsite = landscape.getSite(x, y, getVisibleZ()+depth);
-	        				deepentity = deepsite.getEntity();
-	        				if (!deepentity.isSolid()) {
-		        				depth += 1;
-	        				} else {
-	        					break;
-	        				}
-	        			}
-	        			if (depth >= viewingDepth) {
-	        				//nothing found in time, draw darkness
-		        			g.setColor(Color.BLACK);
-		        			g.drawRect(pixelx, pixely, TILESIZE, TILESIZE);
-		        			g.fillRect(pixelx, pixely, TILESIZE, TILESIZE);
-	        			} else {
-	        				//found something
-	        				//shade it and draw it
-			        		Image tileimage = null;
-			        		float darkness = (1.0f/viewingDepth) * depth;
-			        		String imageName = UNKNOWN;
-			        		if (deepsite.isVisible()) {
-			        			imageName = deepentity.getName();
-			        		}
-			        		try {
-			        			tileimage = ImageLoader.getImage(imageName);
-			        		} catch (IOException e) {
-			        			log.error("Problem loading "+imageName);
-			        			throw new RuntimeException(e);
-			        		}
-			        		if (tileimage != null) {
-			        			  
-			        			g.drawImage(tileimage, pixelx, pixely, null);		        			
-			        			
-			        			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, darkness));
-			        			g.drawImage(getDarkTile(), pixelx, pixely, null);
-			        			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-			        			//may be faster if pre-darkened images are cached and blitted without composite
-			        		}
-	        			}
-	        		} else {
-		        		Image tileimage = null;
-		        		String imageName = UNKNOWN;
-		        		if (site.isVisible()) {
-		        			imageName = entity.getName();
-		        		}
-		                try {
-		                	tileimage = ImageLoader.getImage(imageName);
-		        		} catch (IOException e) {
-		        			log.error("Problem loading "+imageName);
-		        			throw new RuntimeException(e);
-		        		}
-		        		if (tileimage != null) {
-		        			g.drawImage(tileimage, pixelx, pixely, null);
-		        		}
-	        		}
-		        }
-	        } 
-        }
+        //draw tiles in layers, starting with the back
+        //don't bother working out what is and isn't visible from depth
         
-        for (int i = 0; i < landscape.getAgentCount(); i++) {
-        	Agent agent = landscape.getAgents(i);
-        	Vect agentPosition = agent.getPosition();
-        	Vect agentOldPosition = agent.getPreviousSite().getPosition();
-        	if (agentPosition.getZ() >= getVisibleZ() &&  agentPosition.getZ() <= getVisibleZ()+viewingDepth
-        			&& agentPosition.getX() >= visibletileleft-1 && agentPosition.getX() <= visibletileright+1
-        			&& agentPosition.getY() >= visibletiletop-1 && agentPosition.getY() <= visibletilebottom+1) {
+        for (int z = getVisibleZ()+viewingDepth; z >= getVisibleZ(); z-- ){
+            for (int y = visibletiletop; y < visibletilebottom; y++) {
+            	int pixely = y*TILESIZE;
+    	        for (int x = visibletileleft; x < visibletileright; x++) {
+    	        	int pixelx = x*TILESIZE;
+    	        	Rectangle tilerect = new Rectangle(pixelx, pixely, TILESIZE, TILESIZE);
+    	        	if (visible.intersects(tilerect)) {
+    	        		Site site = landscape.getSite(x, y, z);
+    	        		AbstractEntity entity = site.getEntity();
+    	        		if (entity.isSolid()) {
+    		        		Image tileimage = null;
+    		        		String imageName = UNKNOWN;
+    		        		if (site.isVisible()) {
+    		        			imageName = entity.getName();
+    		        		}
+    		                try {
+    		                	tileimage = ImageLoader.getImage(imageName);
+    		        		} catch (IOException e) {
+    		        			log.error("Problem loading "+imageName);
+    		        			throw new RuntimeException(e);
+    		        		}
+    		        		if (tileimage != null) {
+    		        			g.drawImage(tileimage, pixelx, pixely, null);
+    		        		}
+    	        		}
+    	        	}
+    	        }
+            }
+            //draw any agents on this layer
+            for (Agent agent : landscape.getAgents()) {
+            	Vect agentPosition = agent.getPosition();
+            	Vect agentOldPosition = agent.getPreviousSite().getPosition();
+            	if (agentPosition.getZ() == z
+            			&& agentPosition.getX() >= visibletileleft-1 && agentPosition.getX() <= visibletileright+1
+            			&& agentPosition.getY() >= visibletiletop-1 && agentPosition.getY() <= visibletilebottom+1) {
 
-        		Image tileimage = null;
-                try {
-                	tileimage = ImageLoader.getImage(agent.getName()); 
-        		} catch (IOException e) {
-        			log.error("Problem loading Worker");
-        			throw new RuntimeException(e);
-        		}
-                //hide it if is blocked
-                int viewdepth = getVisibleZ();
-                int agentdepth = agentPosition.getZ();
-                for (int j = agentdepth-1; j > viewdepth; j--) {
-                	if (landscape.isSolid(agentPosition.getX(), agentPosition.getY(), j)){
-                		tileimage = null;
-                	}
-                }
-                
-        		if (tileimage != null) {
+            		Image tileimage = null;
+                    try {
+                    	tileimage = ImageLoader.getImage(agent.getName()); 
+            		} catch (IOException e) {
+            			log.error("Problem loading Worker");
+            			throw new RuntimeException(e);
+            		}
         			int newpixelx = agentPosition.getX()*TILESIZE;
         			int newpixely = agentPosition.getY()*TILESIZE;
+        			int oldpixelx = agentOldPosition.getX()*TILESIZE;
+        			int oldpixely = agentOldPosition.getY()*TILESIZE;
         			int pixelx;
         			int pixely;
         			
-        			if (agentOldPosition != agentPosition) {
-	        			int oldpixelx = agentOldPosition.getX()*TILESIZE;
-	        			int oldpixely = agentOldPosition.getY()*TILESIZE;
-	        			
-	        			pixelx = (int)(((1.0-updatefraction)*oldpixelx)+((updatefraction)*newpixelx));
-	        			pixely = (int)(((1.0-updatefraction)*oldpixely)+((updatefraction)*newpixely));
+        			if (agentOldPosition.equals(agentPosition)) {
+            			pixelx = oldpixelx;
+            			pixely = oldpixely;
         			} else {
-            			pixelx = newpixelx;
-            			pixely = newpixely;
+	        			pixelx = (int)(((1.0-updatefraction)*oldpixelx)+(updatefraction*newpixelx));
+	        			pixely = (int)(((1.0-updatefraction)*oldpixely)+(updatefraction*newpixely));
         			}
         			
 
                 	g.drawImage(tileimage, pixelx, pixely, null);
-                	//shade it if deep
-                    if (agentdepth > viewdepth) {
-		        		float darkness = (1.0f/viewingDepth) * (agentdepth-viewdepth);
-            			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, darkness));
-            			g.drawImage(getDarkTile(), pixelx, pixely, null);
-            			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-        			} 
                     //something about this is off - it flickers and twitches a bit
         			//good enough for the moment though
-        		}
-        	}
+            	}
+            }
+            
+            //draw orders on this layer
+        	g.setStroke(orderedstroke);
+        	g.setColor(orderedcolor);
+            for (AbstractAction action : landscape.getActions()) {
+            	Site site = action.getSite();
+            	if (site != null
+            			&& site.getZ() == z
+            			&& site.getX() >= visibletileleft-1 && site.getX() <= visibletileright+1
+            			&& site.getY() >= visibletiletop-1 && site.getY() <= visibletilebottom+1){
+    		        g.drawRect(site.getX()*TILESIZE, site.getY()*TILESIZE, TILESIZE, TILESIZE);
+            	}
+            }
+            
+            //drawn a layer other than top, add a blackness
+            if (z != getVisibleZ()) {
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (1.0f/viewingDepth)));
+				g.setColor(Color.BLACK);
+				g.fillRect(visible.x, visible.y, visible.width, visible.height);
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+            }
         }
+        
+        
         //draw selected sites
     	g.setStroke(selectedstroke);
     	g.setColor(selectedcolor);
@@ -288,18 +255,6 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         	g.setStroke(highlightstroke);
         	g.setColor(highlightedcolor);
 	        g.drawRect(highlightedx*TILESIZE, highlightedy*TILESIZE, TILESIZE, TILESIZE);
-        }
-        
-    	g.setStroke(orderedstroke);
-    	g.setColor(orderedcolor);
-        for (AbstractAction action : landscape.getActions()) {
-        	Site site = action.getSite();
-        	if (site != null
-        			&& site.getZ() == getVisibleZ()
-        			&& site.getX() >= visibletileleft-1 && site.getX() <= visibletileright+1
-        			&& site.getY() >= visibletiletop-1 && site.getY() <= visibletilebottom+1){
-		        g.drawRect(site.getX()*TILESIZE, site.getY()*TILESIZE, TILESIZE, TILESIZE);
-        	}
         }
         
         //TODO draw action pending sites
