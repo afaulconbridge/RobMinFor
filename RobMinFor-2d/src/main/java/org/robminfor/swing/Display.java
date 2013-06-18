@@ -382,7 +382,8 @@ public class Display {
 							//update the visuals
 							long updatetime = System.currentTimeMillis();
 							long updateinterval = updatetime - lastupdate;
-							float updatefraction = ((float)updateinterval) / ((float)updatetimer.getDelay());
+							float updatefraction =  ((float)updateinterval / (float)updatetimer.getDelay());
+							//log.info(""+updatefraction);
 							jpanellandscape.setUpdateFraction(updatefraction);
 							jpanellandscape.repaint();
 							//only enable tools when a game is loaded

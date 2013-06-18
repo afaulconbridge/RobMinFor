@@ -191,9 +191,17 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         			if (agentOldPosition.equals(agentPosition)) {
             			pixelx = oldpixelx;
             			pixely = oldpixely;
+        			} else if (updatefraction == 0.0f) {
+            			pixelx = oldpixelx;
+            			pixely = oldpixely;
+        			} else if (updatefraction == 1.0f) {
+            			pixelx = newpixelx;
+            			pixely = newpixely;
         			} else {
-	        			pixelx = (int)(((1.0-updatefraction)*oldpixelx)+(updatefraction*newpixelx));
-	        			pixely = (int)(((1.0-updatefraction)*oldpixely)+(updatefraction*newpixely));
+        				int dx = (int)((newpixelx-oldpixelx) * updatefraction);
+        				int dy = (int)((newpixely-oldpixely) * updatefraction);
+	        			pixelx = oldpixelx+dx;
+	        			pixely = oldpixely+dy;
         			}
         			
 
