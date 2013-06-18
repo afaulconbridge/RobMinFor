@@ -18,11 +18,19 @@ public class NavigateToAccess extends AbstractAction {
 		this.site = site;
 	}
 	
+	
+	@Override
+	public void abort(Agent agent) {
+		agent.flushActions();
+    	agent.removeActionsOfType(MoveTo.class);
+    	agent.removeActionsOfType(NavigateToAccess.class);
+	}
+	
 	public void doAction(Agent agent) {
         //check if we can complete this action
         if (!isValid(agent)) {
         	log.info("Aborting NavigateToAccess "+site+" because it is invalid");
-        	agent.removeAction(this);
+        	abort(agent);
         } else if (agent.getSite() != site) {
             //further away, need to pathfind
         	log.trace("Navigating NavigateToAccess");
@@ -51,7 +59,7 @@ public class NavigateToAccess extends AbstractAction {
         } else {
             //we are next to the target
         	log.trace("Completed NavigateToAccess");
-        	agent.removeAction(this);
+        	end(agent);
         }
             
 	}

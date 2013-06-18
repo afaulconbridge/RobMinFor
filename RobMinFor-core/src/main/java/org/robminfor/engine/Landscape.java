@@ -64,12 +64,16 @@ public class Landscape {
 		}
 	}
 	
-	public synchronized Agent getAgents(int i){
+	public synchronized Agent getAgent(int i){
 		return agents.get(i);		
 	}
 	
 	public synchronized int getAgentCount(){
 		return agents.size();		
+	}
+	
+	public synchronized List<Agent> getAgents(){
+		return Collections.unmodifiableList(agents);		
 	}
 	
 	public synchronized void addAgent(Agent agent){

@@ -1,8 +1,10 @@
 package org.robminfor.engine;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.util.Vect;
@@ -20,9 +22,9 @@ public class Site {
 	
 	public Site(AbstractEntity entity, Vect position, Landscape landscape) {
 		super();
-		this.setEntity(entity);
 		this.position = position;
 		this.landscape = landscape;
+		this.setEntity(entity);
 	}
 
 	public AbstractEntity getEntity() {
@@ -33,6 +35,11 @@ public class Site {
 		if (entity == null) {
 			entity = EntityManager.getEntityManager().getEntity("Air");
 		}
+		
+		if (entity.isSolid() && getAgents().size() > 0) {
+			throw new IllegalArgumentException("Putting solid over agent");
+		}
+		
 		AbstractEntity oldentity = this.entity;
 		this.entity = entity;
 		
@@ -202,5 +209,15 @@ public class Site {
 				}
 			}
 		}
+	}
+	
+	public Collection<Agent> getAgents() {
+		Collection<Agent> agents = new ArrayList<Agent>();
+		for (Agent a : getLandscape().getAgents()) {
+			if (a.getSite().equals(this)) {
+				agents.add(a);
+			}
+		}
+		return agents;
 	}
 }

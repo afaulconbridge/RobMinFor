@@ -100,7 +100,10 @@ public class Agent {
 			//if we are carrying something, and don't have another purpose for it, deliver it somewhere
 			if (peekInventory() != null) {
 				Site target = site.getLandscape().getNearestStorageFor(peekInventory(), site);
-				this.addAction(new Deliver(peekInventory(), target));
+				AbstractAction next = new Deliver(peekInventory(), target);
+				if (next.isValid(this)) {
+					this.addAction(next);
+				}
 			} else {
 				AbstractAction next = site.getLandscape().getActionForAgent(this);
 				if (next != null) {

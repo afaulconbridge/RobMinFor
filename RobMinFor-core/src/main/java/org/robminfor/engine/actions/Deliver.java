@@ -20,11 +20,10 @@ public class Deliver extends AbstractAction {
 		this.thing = thing;
 		this.target = target;
 	}
-	
-	
+
 	@Override
 	public void abort(Agent agent) {
-		super.abort(agent);
+		agent.flushActions();
 	}
 	
 	@Override
@@ -35,7 +34,11 @@ public class Deliver extends AbstractAction {
 		} else if (!agent.getSite().isAccessible(target)) {
 	        //further away, need to pathfind
 	    	log.info("Navigating to deliver");
-        	agent.addAction(new NavigateToAccess(target));
+	    	AbstractAction next = new NavigateToAccess(target);
+    		agent.addAction(next);
+	    } else if (thing.isSolid() && target.getAgents().size() > 0){
+	    	//wait until the agent(s) occupying the target have moved
+	    	//TODO be smarter
 	    } else {
 	        //we are next to the target
 	    	log.info("Performing deliver");
@@ -56,7 +59,6 @@ public class Deliver extends AbstractAction {
 	    	}
 	    	//end this action
 	    	end(agent);
-	    	return;
 	    }
 	}
 
@@ -68,6 +70,8 @@ public class Deliver extends AbstractAction {
 	@Override
 	public boolean isValid(Agent agent) {
 		if (!isValid()) {
+			return false;
+		} else if (target.getLandscape().findPath(agent.getSite(), target) == null) {
 			return false;
 		} else {
 			return true;
