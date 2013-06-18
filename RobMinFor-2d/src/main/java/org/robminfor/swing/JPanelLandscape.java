@@ -17,6 +17,8 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import javax.swing.JComponent;
 import javax.swing.Scrollable;
@@ -27,12 +29,13 @@ import org.slf4j.LoggerFactory;
 import org.robminfor.engine.Landscape;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.actions.AbstractAction;
+import org.robminfor.engine.actions.Collect;
 import org.robminfor.engine.actions.Dig;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.util.Vect;
 
-public class JPanelLandscape extends JComponent implements Scrollable, MouseListener, MouseMotionListener {
+public class JPanelLandscape extends JComponent implements Scrollable, MouseListener, MouseMotionListener, MouseWheelListener {
 
 	public static final int TILESIZE = 32;
 	private static final String UNKNOWN = "unknown"; //image name for unknown sites
@@ -436,8 +439,14 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	public void dig() {
 		log.info("Dig assigned");
 		for (Site site : selected){
-			landscape.addAction(new Dig(site));
+			landscape.addAction(new Collect(site, site.getEntity()));
 		}
 		selected.clear();
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent arg0) {
+		log.info("Mouse wheel "+arg0.getUnitsToScroll());
+		
 	}
 }

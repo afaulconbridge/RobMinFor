@@ -22,30 +22,31 @@ public class Dig extends AbstractAction {
 	@Override
 	public void doAction(Agent agent) {
         //check if we can complete this action
-		if (!isValid(agent)){
+		if (!isValid()){
 			//target is not solid and thus not diggable
         	log.info("Aborting dig");
         	agent.removeAction(this);
+		} else if (!isValid(agent)){
+			//target is not solid and thus not diggable
+        	log.info("Aborting dig");
+        	agent.removeAction(this);
+        	agent.getSite().getLandscape().addAction(this);
 		} else if (!agent.getSite().isAccessible(site)) {
             //further away, need to pathfind
         	log.info("Navigating to dig");
-        	agent.addAction( new NavigateTo(site));
+        	agent.addAction( new NavigateToAccess(site));
         } else {
             //we are next to the target
-        	agent.setInventory(site.getEntity());
+        	agent.pushInventory(site.getEntity());
 			site.setEntity(EntityManager.getEntityManager().getEntity("Air"));
 			//end this action
         	agent.removeAction(this);
-        	//move stuff to drop off
-        	Site storage = site.getLandscape().findNearestStorageFor(agent.getSite(), agent.getInventory());
-        	Deliver deliver = new Deliver(storage);
-        	agent.addAction(deliver);
         }
 	}
 	
 	@Override
 	public boolean isValid() {
-		//cant dig non-solid objects
+		//can't dig non-solid objects
 		if (!site.isSolid()) {
 			return false;
 		}
@@ -56,18 +57,11 @@ public class Dig extends AbstractAction {
 	public boolean isValid(Agent agent) {
 		if (!isValid()) {
 			return false;
-		} else if (agent.getInventory() != null) {
-			//we don't have an empty inventory to carry stuff away
-			return false;
 		}
 		//must be able to path there
 		//either be directly adjacent or full path
-		if (!agent.getSite().isTransitable(site)) {
-			
-	        List<Site> path = site.getLandscape().findPath(agent.getSite(), site);
-	        if (path == null) {
-	        	return false; 
-	        }
+		if (!agent.getSite().isTransitable(site) && site.getLandscape().findPath(agent.getSite(), site) == null) {
+        	return false;
 		}
 		return true;
 	}

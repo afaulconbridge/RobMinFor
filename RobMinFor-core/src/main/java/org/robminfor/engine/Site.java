@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.robminfor.engine.entities.AbstractEntity;
+import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.util.Vect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,9 @@ public class Site {
 	}
 
 	public void setEntity(AbstractEntity entity) {
+		if (entity == null) {
+			entity = EntityManager.getEntityManager().getEntity("Air");
+		}
 		AbstractEntity oldentity = this.entity;
 		this.entity = entity;
 		
@@ -100,6 +104,12 @@ public class Site {
 		return adjacents;
 	}
 	
+	/**
+	 * Is the other site accessible from this site without moving?
+	 * 
+	 * @param other
+	 * @return
+	 */
     public boolean isAccessible(Site other) {
         //everything that is accessible, is adjacent
         if (!isAdjacent(other)){

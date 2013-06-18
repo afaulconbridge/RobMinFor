@@ -8,8 +8,6 @@ import java.util.Map;
 
 public class Home extends AbstractEntity implements IStorage  {
 	
-	private final Collection<AbstractFacility> facilities = new ArrayList<AbstractFacility>(); 
-	
 	private final Map<String, Integer> content = Collections.synchronizedMap(new HashMap<String, Integer>());
 	
 	public Home() {
@@ -24,16 +22,6 @@ public class Home extends AbstractEntity implements IStorage  {
 	@Override
 	public String getName() {
 		return "Home";
-	}
-	
-	public void addFacility(AbstractFacility facility) {
-		if (!facilities.contains(facility)) {
-			facilities.add(facility);
-		}
-	}
-	
-	public Collection<AbstractFacility> getFacilities() {
-		return Collections.unmodifiableCollection(facilities);
 	}
 
 	@Override
@@ -80,6 +68,12 @@ public class Home extends AbstractEntity implements IStorage  {
 	@Override
 	public int getSellValue() {
 		return -1;
+	}
+
+	@Override
+	public boolean canStore(String entityName) {
+		//for the moment, we can store everything
+		return true;
 	}
 	
 	

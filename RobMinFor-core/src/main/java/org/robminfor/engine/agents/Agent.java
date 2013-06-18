@@ -1,18 +1,20 @@
 package org.robminfor.engine.agents;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.robminfor.engine.Site;
 import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.actions.Deliver;
 import org.robminfor.engine.entities.AbstractEntity;
+import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.util.Vect;
 
 public class Agent {
 	private Site site;
 	private Site previousSite;
-	private final List<AbstractAction> actions = new ArrayList<AbstractAction>();
+	private final LinkedList<AbstractAction> actions = new LinkedList<AbstractAction>();
 	private AbstractEntity inventory = null;
 
 	public Agent(Site site) {
@@ -41,11 +43,21 @@ public class Agent {
 	}
 
 	public synchronized void removeAction(AbstractAction action) {
-		actions.remove(action);
+		if (!actions.remove(action)) throw new IllegalArgumentException("action not in actions");
 	}
 
+	public synchronized AbstractAction flushActions() {
+		AbstractAction topAction = actions.peekLast();
+		actions.clear();
+		return topAction;
+	}
+	
 	public synchronized void addAction(AbstractAction action) {
 		actions.add(0, action);
+	}
+
+	public synchronized AbstractAction getTopAction() {
+		return actions.peekLast();
 	}
 
 	public synchronized void removeActionsOfType(Class<? extends AbstractAction> t) {
@@ -60,12 +72,22 @@ public class Agent {
 		}
 	}
 
-	public synchronized AbstractEntity getInventory() {
+	public synchronized AbstractEntity peekInventory() {
 		return inventory;
 	}
 
-	public synchronized void setInventory(AbstractEntity inventory) {
-		this.inventory = inventory;
+	public synchronized void pushInventory(AbstractEntity thing) {
+		if (thing == null) throw new IllegalArgumentException("thing should not be null");
+		if (this.inventory != null) throw new IllegalArgumentException("agent inventory must be null");
+		if (!thing.isSolid())  throw new IllegalArgumentException("thing must be solid");
+		
+		this.inventory = thing;
+	}
+
+	public synchronized AbstractEntity popInventory() {
+		AbstractEntity thing = this.inventory;
+		this.inventory = null;
+		return thing;
 	}
 
 	public synchronized void update() {
@@ -75,10 +97,10 @@ public class Agent {
 			Site target = site.getLandscape().getSite(site.getX(), site.getY(), site.getZ()+1);
 			setSite(target);
 		} else if (actions.size() == 0) {
-			//if we are carying something, deliver it somewhere
-			if (getInventory() != null) {
-	        	Site storage = site.getLandscape().findNearestStorageFor(getSite(), getInventory());
-				addAction(new Deliver(storage));
+			//if we are carrying something, and don't have another purpose for it, deliver it somewhere
+			if (peekInventory() != null) {
+				Site target = site.getLandscape().getNearestStorageFor(peekInventory(), site);
+				this.addAction(new Deliver(peekInventory(), target));
 			} else {
 				AbstractAction next = site.getLandscape().getActionForAgent(this);
 				if (next != null) {
@@ -114,5 +136,5 @@ public class Agent {
 	public synchronized String getName() {
 		return "Worker";
 	}
-
+	
 }

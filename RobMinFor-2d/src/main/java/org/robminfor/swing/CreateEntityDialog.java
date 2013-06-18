@@ -9,16 +9,17 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 
 import org.robminfor.engine.Landscape;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.actions.AbstractAction;
-import org.robminfor.engine.actions.Deploy;
+import org.robminfor.engine.actions.Deliver;
+import org.robminfor.engine.actions.Haul;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.engine.entities.EntityManager;
-import org.robminfor.engine.entities.IStorage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,23 +38,10 @@ public class CreateEntityDialog extends JDialog {
 	private final JDialog newdialog;
 	private final List<Site> selected;
 	private final Landscape landscape;
+	private final JList list;
 
     private Logger log = LoggerFactory.getLogger(getClass());
-	
-	private class OkActionListener implements ActionListener {
-		
-		public void actionPerformed(ActionEvent e) {
-			
-			for (Site site : selected) {
-				//TODO allow for selecting of different things
-				AbstractAction action = new Deploy(site, "Stonemasonry");
-				landscape.addAction(action);
-				log.info("creating Deploy of Stonemasonry");
-			}
-			newdialog.dispose();
-		}
-	}
-	
+    
 	/**
 	 * Create the dialog.
 	 * @param parent 
@@ -85,17 +73,16 @@ public class CreateEntityDialog extends JDialog {
 		}
 		{
 			//add other items here
-			//TODO load this from some external file
-			JList list = new JList();
+			list = new JList();
 			list.setModel(new AbstractListModel() {
-				String[] values = new String[] {"Stonemasonry"};
 				public int getSize() {
-					return values.length;
+					return EntityManager.getEntityManager().getEntityNames().size();
 				}
 				public Object getElementAt(int index) {
-					return values[index];
+					return EntityManager.getEntityManager().getEntityNames().get(index);
 				}
 			});
+			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			GridBagConstraints gbc_list = new GridBagConstraints();
 			gbc_list.fill = GridBagConstraints.BOTH;
 			gbc_list.gridx = 0;
@@ -111,8 +98,25 @@ public class CreateEntityDialog extends JDialog {
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
-				okButton.addActionListener(new OkActionListener());
-				//TODO disable OK button until something is selected
+				okButton.addActionListener(new ActionListener() {
+					
+					public void actionPerformed(ActionEvent e) {
+
+						Object valueObject = list.getSelectedValue();
+						if (valueObject != null) {
+							String selectedValue = (String) valueObject;
+							for (Site site : selected) {
+								AbstractEntity thing = EntityManager.getEntityManager().getEntity(selectedValue);
+								Site source = site.getLandscape().getNearestStorageOf(thing, site);
+								AbstractAction action = new Haul(source, site, thing);
+								landscape.addAction(action);
+								log.info("creating Haul of "+selectedValue);
+							}
+						}
+						newdialog.dispose();
+					}
+				});
+				//disable OK button until something is selected
 				//okButton.setEnabled(false);
 			}
 			{

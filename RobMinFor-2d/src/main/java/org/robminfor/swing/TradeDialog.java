@@ -261,7 +261,7 @@ public class TradeDialog extends JDialog {
 			} else {
 				int value = getBuyCost(type);
 				if (landscape.changeMoney(-value)){
-					landscape.addAction(new Buy(type));
+					landscape.addAction(new Buy(type, landscape));
 				}
 			}
 		}
@@ -276,7 +276,7 @@ public class TradeDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			landscape.addAction(new Sell(type));
+			landscape.addAction(new Sell(type, landscape));
 		}
 	}
 }

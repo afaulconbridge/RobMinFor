@@ -9,4 +9,6 @@ public interface IStorage {
 	public int getCount(String entityName);
 	
 	public boolean containsEntity(String thing);
+
+	public boolean canStore(String entityName);
 }

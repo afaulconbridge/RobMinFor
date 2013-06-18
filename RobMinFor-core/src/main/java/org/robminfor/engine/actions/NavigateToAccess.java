@@ -7,13 +7,13 @@ import org.robminfor.engine.agents.Agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NavigateTo extends AbstractAction {
+public class NavigateToAccess extends AbstractAction {
 
 	private final Site site;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 	
-	public NavigateTo(Site site){
+	public NavigateToAccess(Site site){
 		super();
 		this.site = site;
 	}
@@ -21,11 +21,11 @@ public class NavigateTo extends AbstractAction {
 	public void doAction(Agent agent) {
         //check if we can complete this action
         if (!isValid(agent)) {
-        	log.info("Aborting NavigateTo "+site+" because it is invalid");
+        	log.info("Aborting NavigateToAccess "+site+" because it is invalid");
         	agent.removeAction(this);
-        } else if (!agent.getSite().isTransitable(site)) {
+        } else if (agent.getSite() != site) {
             //further away, need to pathfind
-        	log.trace("Navigating NavigateTo");
+        	log.trace("Navigating NavigateToAccess");
             //remove any moveto actions
         	agent.removeActionsOfType(MoveTo.class);
         	agent.removeAction(this);
@@ -41,6 +41,7 @@ public class NavigateTo extends AbstractAction {
             	//log.info("agent.getSite() = "+agent.getSite());
                 //re-pathfind
             	//add the actions in reverse order because actions are a stack
+            	//don't do the last one because thats what we want to access
             	for (int i = path.size()-2; i >= 1; i--){
                 	Site loc = path.get(i);
                 	log.trace("loc = "+loc);
@@ -49,7 +50,7 @@ public class NavigateTo extends AbstractAction {
             }
         } else {
             //we are next to the target
-        	log.trace("Completed NavigateTo");
+        	log.trace("Completed NavigateToAccess");
         	agent.removeAction(this);
         }
             
@@ -57,7 +58,8 @@ public class NavigateTo extends AbstractAction {
 
 	@Override
 	public boolean isValid() {
-		
+		//this always returns as valid
+		//target being solid/empty does not matter - you only need to be able to access it
 		return true;
 	}
 	
@@ -69,12 +71,8 @@ public class NavigateTo extends AbstractAction {
 		
 		//must be able to path there
 		//either be directly adjacent or full path
-		if (!agent.getSite().isTransitable(site)) {
-			
-	        List<Site> path = site.getLandscape().findPath(agent.getSite(), site);
-	        if (path == null) {
-	        	return false; 
-	        }
+		if (!agent.getSite().isTransitable(site) && site.getLandscape().findPath(agent.getSite(), site) == null) {
+        	return false;
 		}
         
 		return true;

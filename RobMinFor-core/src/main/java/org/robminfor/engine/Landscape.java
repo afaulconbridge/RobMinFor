@@ -13,6 +13,7 @@ import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.engine.entities.AbstractFacility;
 import org.robminfor.engine.entities.EntityManager;
+import org.robminfor.engine.entities.IStorage;
 import org.robminfor.util.Vect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,12 +169,6 @@ public class Landscape {
 	public synchronized List<AbstractAction> getActions() {
 		return Collections.unmodifiableList(actions);
 	}
-
-	public synchronized Site findNearestStorageFor(Site site, AbstractEntity entity) {
-		//for the moment, Home is the only storage
-		return getHomeSite();
-		//TODO implement for real
-	}
 	
 	public synchronized void addFacility(AbstractFacility facility) {
 		if (!facilities.contains(facility)) {
@@ -189,6 +184,52 @@ public class Landscape {
 		} else {
 			throw new IllegalArgumentException("Non contained facility "+facility);
 		}
+	}
+	
+	public synchronized Site getNearestStorageFor(AbstractEntity entity, Site target) {
+		return getNearestStorageFor(entity.getName(), target);
+	}
+	
+	public synchronized Site getNearestStorageFor(String entityName, Site target) {
+		//TODO implement this in a generic fashion over all storage sites
+		return getHomeSite();
+	}
+	
+	public synchronized Site getNearestStorageOf(AbstractEntity entity, Site target) {
+		return getNearestStorageOf(entity.getName(), target);
 		
+	}
+	
+	public synchronized Site getNearestStorageOf(String entityName, Site target) {
+		//TODO implement this in a generic fashion over all storage sites
+		IStorage store = (IStorage) getHomeSite().getEntity();
+		if (store.containsEntity(entityName)) {
+			return getHomeSite();
+		}
+		//if we can't find anything
+		return null;
+	}
+	
+	public synchronized Site getStorageFor(AbstractEntity entity) {
+		return getStorageFor(entity.getName());
+	}
+	
+	public synchronized Site getStorageFor(String entityName) {
+		//TODO implement this in a generic fashion over all storage sites
+		return getHomeSite();
+	}
+	
+	public synchronized Site getStorageOf(AbstractEntity entity) {
+		return getStorageOf(entity.getName());
+		
+	}
+	
+	public synchronized Site getStorageOf(String entityName) {
+		//TODO implement this in a generic fashion over all storage sites
+		IStorage store = (IStorage) getHomeSite().getEntity();
+		if (store.containsEntity(entityName)) {
+			return getHomeSite();
+		}
+		return null;
 	}
 }

@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This represents moving between transitable sites. For larger distances, NavigateTo should be used.
+ * This represents moving between transitable sites. For larger distances, NavigateToAccess should be used.
  * 
  * @author faulcon
  *
@@ -26,17 +26,13 @@ public class MoveTo extends AbstractAction {
 	
 	public void doAction(Agent agent) {
         //check if we can complete this action
-        if (!isValid(agent)) {
-        	log.trace("Aborting moveto, invalid");
-        	agent.removeActionsOfType(MoveTo.class);
-        } else if (!agent.getSite().isTransitable(site)) {
-            //further away, need to pathfind
+		if (!agent.getSite().isTransitable(site)) {
         	log.trace("Navigating moveto");
         	agent.removeActionsOfType(MoveTo.class);
         } else {
             //we are next to the target
         	log.trace("Completing moveto");
-        	agent.setSite(this.site);
+        	agent.setSite(site);
         	agent.removeAction(this);
         }
             
@@ -48,9 +44,8 @@ public class MoveTo extends AbstractAction {
 		if (site.isSolid()) {
 			log.error("Trying to move into solid site");
 			return false;
-		}
-		if (!site.isWalkable()) {
-			log.error("Trying to move into unwalkabke site");
+		} else if (!site.isWalkable()) {
+			log.error("Trying to move into unwalkable site");
 			return false;
 		}
 		
@@ -64,15 +59,9 @@ public class MoveTo extends AbstractAction {
 		}
 		
 		//must be able to path there
-		//either be directly adjacent or full path
 		if (!agent.getSite().isTransitable(site)) {
-			
-	        List<Site> path = site.getLandscape().findPath(agent.getSite(), site);
-	        if (path == null) {
-	        	return false; 
-	        }
+        	return false; 
 		}
-        
 		return true;
 	}
 
