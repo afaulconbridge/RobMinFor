@@ -50,7 +50,7 @@ public class Buy extends AbstractAction {
 		
 		//move to target
 		if (!agent.getSite().isAccessible(target)) {
-        	agent.addAction(new NavigateToAccess(target));
+        	agent.addAction(new NavigateToAccess(target, this));
 		} else if (landscape.changeMoney(-thing.getBuyValue())) {
 			//actually at target so buy stuff
 			IStorage store = (IStorage) target.getEntity();

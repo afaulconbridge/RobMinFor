@@ -7,6 +7,7 @@ import java.util.List;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.actions.Deliver;
+import org.robminfor.engine.actions.Haul;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.engine.entities.EntityManager;
 import org.robminfor.util.Vect;
@@ -100,7 +101,7 @@ public class Agent {
 			//if we are carrying something, and don't have another purpose for it, deliver it somewhere
 			if (peekInventory() != null) {
 				Site target = site.getLandscape().getNearestStorageFor(peekInventory(), site);
-				AbstractAction next = new Deliver(peekInventory(), target);
+				AbstractAction next = new Haul(getSite(), target, peekInventory());
 				if (next.isValid(this)) {
 					this.addAction(next);
 				}

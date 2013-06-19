@@ -200,11 +200,11 @@ public class Landscape {
 	}
 	
 	public synchronized Site getNearestStorageOf(AbstractEntity entity, Site target) {
-		return getNearestStorageOf(entity.getName(), target);
+		return getNearestStorageContaining(entity.getName(), target);
 		
 	}
 	
-	public synchronized Site getNearestStorageOf(String entityName, Site target) {
+	public synchronized Site getNearestStorageContaining(String entityName, Site target) {
 		//TODO implement this in a generic fashion over all storage sites
 		IStorage store = (IStorage) getHomeSite().getEntity();
 		if (store.containsEntity(entityName)) {

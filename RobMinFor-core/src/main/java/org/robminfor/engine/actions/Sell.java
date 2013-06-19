@@ -42,7 +42,7 @@ public class Sell extends AbstractAction {
 			
 		//find a source now and for ever
 		if (source == null) {
-			source = agent.getSite().getLandscape().getNearestStorageOf(name, agent.getSite());
+			source = agent.getSite().getLandscape().getNearestStorageContaining(name, agent.getSite());
 		}
 		
 		IStorage store = (IStorage) source.getEntity();
@@ -54,7 +54,7 @@ public class Sell extends AbstractAction {
 		} else {
 			//move to source
 			if (!agent.getSite().isAccessible(source)) {
-	        	agent.addAction(new NavigateToAccess(source));
+	        	agent.addAction(new NavigateToAccess(source, this));
 			} else {
 				//actually at source so buy stuff
 				AbstractEntity thing = store.removeEntity(name);

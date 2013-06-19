@@ -12,13 +12,18 @@ public class Collect extends AbstractAction {
 
 	private final Site source;
 	private final AbstractEntity thing;
+	private final AbstractAction parent;
 	
     private Logger log = LoggerFactory.getLogger(getClass());
 
-	public Collect(Site source, AbstractEntity thing) {
+	public Collect(Site source, AbstractEntity thing, AbstractAction parent) {
 		super();
+		if (thing == null) throw new IllegalArgumentException();
+		if (source == null) throw new IllegalArgumentException();
+		if (parent == null) throw new IllegalArgumentException();
 		this.source = source;
 		this.thing = thing;
+		this.parent = parent;
 	}
 	
 	@Override
@@ -35,7 +40,7 @@ public class Collect extends AbstractAction {
         //further away, need to pathfind
 		} else if (!agent.getSite().isAccessible(source)) {
 	    	log.info("Navigating to collect");
-        	agent.addAction(new NavigateToAccess(source));
+        	agent.addAction(new NavigateToAccess(source, this));
 	    //we are next to the source with empty inventory
 	    } else {
 	    	log.info("Performing collect");
@@ -69,11 +74,14 @@ public class Collect extends AbstractAction {
 	
 	@Override
 	public boolean isValid(Agent agent) {
+		if (agent == null) throw new IllegalArgumentException("Agent cannot be null");
 		if (!isValid()) {
 			return false;
 		} else if (agent.peekInventory() != null) {
 			return false;
-		} else {
+		} else if (agent.peekInventory() == thing) {
+			return false;
+		}  else {
 			return true;
 		}
 	}

@@ -18,6 +18,9 @@ public class Haul extends AbstractAction {
 
 	public Haul(Site source, Site target, AbstractEntity thing) {
 		super();
+		if (source == null) throw new IllegalArgumentException("source cannpt be null");
+		if (target == null) throw new IllegalArgumentException("target cannot be null");
+		if (thing == null) throw new IllegalArgumentException("thing cannot be null");
 		this.source = source;
 		this.target = target;
 		this.thing = thing;
@@ -34,8 +37,8 @@ public class Haul extends AbstractAction {
 		if (!isValid(agent)){
 			abort(agent);
 		}
-    	agent.addAction(new Deliver(thing, target));
-    	agent.addAction(new Collect(source, thing));
+    	agent.addAction(new Deliver(target, thing, this));
+    	agent.addAction(new Collect(source, thing, this));
     	end(agent);
 	}
 

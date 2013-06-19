@@ -10,12 +10,14 @@ import org.slf4j.LoggerFactory;
 public class NavigateToAccess extends AbstractAction {
 
 	private final Site site;
+	private AbstractAction parent;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 	
-	public NavigateToAccess(Site site){
+	public NavigateToAccess(Site site, AbstractAction parent){
 		super();
 		this.site = site;
+		this.parent = parent;
 	}
 	
 	
@@ -53,7 +55,7 @@ public class NavigateToAccess extends AbstractAction {
             	for (int i = path.size()-2; i >= 1; i--){
                 	Site loc = path.get(i);
                 	log.trace("loc = "+loc);
-                	agent.addAction(new MoveTo(path.get(i)));
+                	agent.addAction(new MoveTo(path.get(i), this));
                 }
             }
         } else {

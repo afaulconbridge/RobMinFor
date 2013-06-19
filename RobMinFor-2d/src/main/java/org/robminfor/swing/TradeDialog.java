@@ -229,7 +229,8 @@ public class TradeDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			if ("Worker".equals(this.type)) {
+			log.info("Buying "+type);
+			if ("Worker".equals(type)) {
 				Site homeSite = landscape.getHomeSite();
 				int x = homeSite.getX();
 				int y = homeSite.getY();
@@ -254,15 +255,11 @@ public class TradeDialog extends JDialog {
 					if (landscape.changeMoney(-WORKERCOST)) {
 						homeSite = sites.get(rng.nextInt(sites.size()));
 						Agent agent = new Agent(homeSite);
-						landscape.addAgent(agent);
-						landscape.changeMoney(-WORKERCOST); 
+						landscape.addAgent(agent); 
 					}
 				}
 			} else {
-				int value = getBuyCost(type);
-				if (landscape.changeMoney(-value)){
-					landscape.addAction(new Buy(type, landscape));
-				}
+				landscape.addAction(new Buy(type, landscape));
 			}
 		}
 	}

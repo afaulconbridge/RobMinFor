@@ -30,7 +30,7 @@ import org.robminfor.engine.Landscape;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.actions.AbstractAction;
 import org.robminfor.engine.actions.Collect;
-import org.robminfor.engine.actions.Dig;
+import org.robminfor.engine.actions.Haul;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.AbstractEntity;
 import org.robminfor.util.Vect;
@@ -185,24 +185,10 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
         			int newpixely = agentPosition.getY()*TILESIZE;
         			int oldpixelx = agentOldPosition.getX()*TILESIZE;
         			int oldpixely = agentOldPosition.getY()*TILESIZE;
-        			int pixelx;
-        			int pixely;
-        			
-        			if (agentOldPosition.equals(agentPosition)) {
-            			pixelx = oldpixelx;
-            			pixely = oldpixely;
-        			} else if (updatefraction == 0.0f) {
-            			pixelx = oldpixelx;
-            			pixely = oldpixely;
-        			} else if (updatefraction == 1.0f) {
-            			pixelx = newpixelx;
-            			pixely = newpixely;
-        			} else {
-        				int dx = (int)((newpixelx-oldpixelx) * updatefraction);
-        				int dy = (int)((newpixely-oldpixely) * updatefraction);
-	        			pixelx = oldpixelx+dx;
-	        			pixely = oldpixely+dy;
-        			}
+    				int dx = (int)((newpixelx-oldpixelx) * updatefraction);
+    				int dy = (int)((newpixely-oldpixely) * updatefraction);
+        			int pixelx = oldpixelx+dx;
+        			int pixely = oldpixely+dy;
         			
 
                 	g.drawImage(tileimage, pixelx, pixely, null);
@@ -402,7 +388,12 @@ public class JPanelLandscape extends JComponent implements Scrollable, MouseList
 	public void dig() {
 		log.info("Dig assigned");
 		for (Site site : selected){
-			landscape.addAction(new Collect(site, site.getEntity()));
+			if (site.getEntity() != null && site.getEntity().isSolid()) {
+				Site target = landscape.getNearestStorageFor(site.getEntity(), site);
+				if (target != null) {
+					landscape.addAction(new Haul(site, target, site.getEntity()));
+				}
+			}
 		}
 		selected.clear();
 	}

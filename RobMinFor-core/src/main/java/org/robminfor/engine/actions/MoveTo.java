@@ -16,12 +16,14 @@ import org.slf4j.LoggerFactory;
 public class MoveTo extends AbstractAction {
 
 	private final Site site;
+	private AbstractAction parent;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 	
-	public MoveTo(Site site){
+	public MoveTo(Site site, AbstractAction parent){
 		super();
 		this.site = site;
+		this.parent = parent;
 	}
 	
 	public void doAction(Agent agent) {
