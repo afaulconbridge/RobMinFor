@@ -27,12 +27,13 @@ public class NewLandscapeDialog extends JDialog {
 	private final JSpinner spinnerRichness = new JSpinner();
 	private final JSpinner spinnerSeed = new JSpinner();
 	private final NewLandscapeDialog newdialog;
-	
+
 	private Display display;
 
 	/**
 	 * Create the dialog.
-	 * @param parent 
+	 * 
+	 * @param parent
 	 */
 	public NewLandscapeDialog(Frame parent, Display displayTmp) {
 		super(parent, true);
@@ -43,20 +44,24 @@ public class NewLandscapeDialog extends JDialog {
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		GridBagLayout gbl_contentPanel = new GridBagLayout();
-		gbl_contentPanel.columnWidths = new int[]{80, 195, 0};
-		gbl_contentPanel.rowHeights = new int[]{15, 20, 20, 20, 0};
-		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPanel.columnWidths = new int[] { 80, 195, 0 };
+		gbl_contentPanel.rowHeights = new int[] { 15, 20, 20, 20, 0 };
+		gbl_contentPanel.columnWeights = new double[] { 0.0, 0.0,
+				Double.MIN_VALUE };
+		gbl_contentPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
+				Double.MIN_VALUE };
 		contentPanel.setLayout(gbl_contentPanel);
 		{
-			JLabel lblSelectParametersFor = new JLabel("Select parameters for new landscape...");
+			JLabel lblSelectParametersFor = new JLabel(
+					"Select parameters for new landscape...");
 			GridBagConstraints gbc_lblSelectParametersFor = new GridBagConstraints();
 			gbc_lblSelectParametersFor.anchor = GridBagConstraints.WEST;
 			gbc_lblSelectParametersFor.insets = new Insets(0, 0, 5, 0);
 			gbc_lblSelectParametersFor.gridwidth = 2;
 			gbc_lblSelectParametersFor.gridx = 0;
 			gbc_lblSelectParametersFor.gridy = 0;
-			contentPanel.add(lblSelectParametersFor, gbc_lblSelectParametersFor);
+			contentPanel
+					.add(lblSelectParametersFor, gbc_lblSelectParametersFor);
 		}
 		{
 			spinnerSize.setModel(new SpinnerNumberModel(32, 32, 128, 1));
@@ -77,7 +82,8 @@ public class NewLandscapeDialog extends JDialog {
 			contentPanel.add(lblSize, gbc_lblSize);
 		}
 		{
-			spinnerRichness.setModel(new SpinnerNumberModel(new Float(0), new Float(0), new Float(1), new Float(0)));
+			spinnerRichness.setModel(new SpinnerNumberModel(new Float(0),
+					new Float(0), new Float(1), new Float(0)));
 			GridBagConstraints gbc_spinnerRichness = new GridBagConstraints();
 			gbc_spinnerRichness.anchor = GridBagConstraints.NORTHEAST;
 			gbc_spinnerRichness.insets = new Insets(0, 0, 5, 5);
@@ -122,12 +128,15 @@ public class NewLandscapeDialog extends JDialog {
 				getRootPane().setDefaultButton(okButton);
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						LandscapeFactory factory = LandscapeFactory.getInstance();
+						LandscapeFactory factory = LandscapeFactory
+								.getInstance();
 						Integer size = (Integer) spinnerSize.getValue();
 						Float richness = (Float) spinnerRichness.getValue();
 						Integer seed = (Integer) spinnerSeed.getValue();
-						Landscape landscape = factory.generate(size, size, size/2, seed);
-						//TODO add other parameters - ore/crystal balance, richness, depthscale, octave count, etc
+						Landscape landscape = factory.generate(size, size,
+								size / 2, seed);
+						// TODO add other parameters - ore/crystal balance,
+						// richness, depthscale, octave count, etc
 						display.setLandscape(landscape);
 						newdialog.dispose();
 					}

@@ -10,21 +10,21 @@ import javax.imageio.ImageIO;
 
 public class ImageLoader {
 
-	//TODO use a proper Guava cache for these
-	//better memory mangement etc
-	private static Map<String, Image> cache = new HashMap<String, Image>();	
-	
+	// TODO use a proper Guava cache for these
+	// better memory mangement etc
+	private static Map<String, Image> cache = new HashMap<String, Image>();
+
 	public static Image getImage(String name) throws IOException {
-		if (cache.containsKey(name)){
+		if (cache.containsKey(name)) {
 			return cache.get(name);
 		} else {
-			String filename = "/img/"+name+".png";
+			String filename = "/img/" + name + ".png";
 			URL fileurl = System.class.getResource(filename);
-			if (fileurl == null){
-				throw new IOException("Unable to find resource "+filename);
+			if (fileurl == null) {
+				throw new IOException("Unable to find resource " + filename);
 			}
 			Image image = ImageIO.read(fileurl);
-			cache.put(name,  image);
+			cache.put(name, image);
 			return image;
 		}
 	}

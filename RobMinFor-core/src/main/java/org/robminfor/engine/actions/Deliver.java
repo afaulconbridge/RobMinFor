@@ -1,77 +1,58 @@
 package org.robminfor.engine.actions;
 
-import org.robminfor.engine.Landscape;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.agents.Agent;
-import org.robminfor.engine.entities.AbstractEntity;
-import org.robminfor.engine.entities.IStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Deliver extends AbstractAction {
 
-	private Site target = null;
-	private AbstractEntity thing = null;
-	
-    private Logger log = LoggerFactory.getLogger(getClass());
+	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public Deliver(AbstractEntity thing, Site target) {
-		super();
-		this.thing = thing;
-		this.target = target;
+	private Site target;
+
+	public Deliver(Site target) {
+		this.target = null;
+	}
+
+	private Site getTarget() {
+		if (target == null) {
+			if (getAgent() != null) {
+				target = getAgent()
+						.getSite()
+						.getLandscape()
+						.getNearestStorageFor(getAgent().peekInventory(),
+								getAgent().getSite());
+			}
+		}
+		return target;
 	}
 
 	@Override
-	public void abort(Agent agent) {
-		agent.flushActions();
-	}
-	
-	@Override
-	public void doAction(Agent agent) {
-		if (!isValid(agent)){
-			abort(agent);
-			return;
-		} else if (!agent.getSite().isAccessible(target)) {
-	        //further away, need to pathfind
-	    	log.info("Navigating to deliver");
-	    	AbstractAction next = new NavigateToAccess(target);
-    		agent.addAction(next);
-	    } else if (thing.isSolid() && target.getAgents().size() > 0){
-	    	//wait until the agent(s) occupying the target have moved
-	    	//TODO be smarter
-	    } else {
-	        //we are next to the target
-	    	log.info("Performing deliver");
-	    	boolean isStorage;
-	    	synchronized(IStorage.class) {
-	    		isStorage = IStorage.class.isInstance(target.getEntity());
-	    	}
-	    	//target is a storage, so put this in it
-	    	if (isStorage) {
-		    	IStorage storage = (IStorage) target.getEntity();
-		    	storage.addEntity(agent.popInventory().getName());
-	    	} else {
-	    		//target is not storage
-	    		//swap what we are carrying with it
-	    		AbstractEntity other = target.getEntity();
-	    		target.setEntity(agent.popInventory());
-    			agent.pushInventory(other);
-	    	}
-	    	//end this action
-	    	end(agent);
-	    }
+	public Site getSite() {
+		return getTarget();
 	}
 
 	@Override
 	public boolean isValid() {
 		return true;
 	}
-	
+
 	@Override
-	public boolean isValid(Agent agent) {
-		if (!isValid()) {
+	public boolean isComplete() {
+		if (getAgent().peekInventory() == null) {
+			return true;
+		} else {
 			return false;
-		} else if (target.getLandscape().findPath(agent.getSite(), target) == null) {
+		}
+	}
+
+	@Override
+	public boolean isCompletable() {
+		if (getAgent() == null) {
+			return false;
+		} else if (getAgent().getSite().getLandscape()
+				.findPath(getAgent().getSite(), getTarget()) == null) {
 			return false;
 		} else {
 			return true;
@@ -79,8 +60,45 @@ public class Deliver extends AbstractAction {
 	}
 
 	@Override
-	public Site getSite() {
-		return target;
+	public void doAction() {
+		if (!isValid()) {
+			throw new IllegalArgumentException(
+					"Agent must be assigned before doing action");
+		} else if (getAgent() == null) {
+			throw new IllegalArgumentException("Invalid action");
+		} else if (isComplete()) {
+			getAgent().removeAction(this);
+		} else if (!isCompletable()) {
+			// can't be done, work out why
+			if (getAgent().getSite().getLandscape()
+					.findPath(getAgent().getSite(), getTarget()) == null) {
+				// cant path to target, just drop it here
+			} else {
+				// should never be here
+				log.warn("cannot complete and can't determine why");
+			}
+		} else {
+			if (!getAgent().getSite().isAccessible(getTarget())) {
+				// not in position to access source
+				getAgent().addAction(new NavigateToAccess(getTarget()));
+			} else {
+				getTarget().addItem(getAgent().popInventory());
+			}
+		}
+
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public int getEffort(Agent agent) {
+		if (getAgent() == null) {
+			return Integer.MAX_VALUE;
+		} else if (getTarget() == null) {
+			return Integer.MAX_VALUE;
+		} else {
+			return agent.getSite().getLandscape()
+					.findPath(agent.getSite(), getTarget()).size();
+		}
 	}
 
 }

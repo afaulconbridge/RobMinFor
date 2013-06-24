@@ -11,83 +11,88 @@ public class NavigateToAccess extends AbstractAction {
 
 	private final Site site;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
-	
-	public NavigateToAccess(Site site){
+	private Logger log = LoggerFactory.getLogger(getClass());
+
+	public NavigateToAccess(Site site) {
 		super();
 		this.site = site;
-	}
-	
-	
-	@Override
-	public void abort(Agent agent) {
-		agent.flushActions();
-    	agent.removeActionsOfType(MoveTo.class);
-    	agent.removeActionsOfType(NavigateToAccess.class);
-	}
-	
-	public void doAction(Agent agent) {
-        //check if we can complete this action
-        if (!isValid(agent)) {
-        	log.info("Aborting NavigateToAccess "+site+" because it is invalid");
-        	abort(agent);
-        } else if (agent.getSite() != site) {
-            //further away, need to pathfind
-        	log.trace("Navigating NavigateToAccess");
-            //remove any moveto actions
-        	agent.removeActionsOfType(MoveTo.class);
-        	agent.removeAction(this);
-        	
-            List<Site> path = site.getLandscape().findPath(agent.getSite(), site);
-            if (path == null) {
-                //cannot complete this, no valid path
-                //stop moving
-            	//Should already have been identified in isValid check
-            	log.warn("no path found");
-            } else {
-                //log.info("path length = "+path.size());
-            	//log.info("agent.getSite() = "+agent.getSite());
-                //re-pathfind
-            	//add the actions in reverse order because actions are a stack
-            	//don't do the last one because thats what we want to access
-            	for (int i = path.size()-2; i >= 1; i--){
-                	Site loc = path.get(i);
-                	log.trace("loc = "+loc);
-                	agent.addAction(new MoveTo(path.get(i)));
-                }
-            }
-        } else {
-            //we are next to the target
-        	log.trace("Completed NavigateToAccess");
-        	end(agent);
-        }
-            
-	}
-
-	@Override
-	public boolean isValid() {
-		//this always returns as valid
-		//target being solid/empty does not matter - you only need to be able to access it
-		return true;
-	}
-	
-	@Override
-	public boolean isValid(Agent agent) {
-		if (!isValid()) {
-			return false;
-		}
-		
-		//must be able to path there
-		//either be directly adjacent or full path
-		if (!agent.getSite().isTransitable(site) && site.getLandscape().findPath(agent.getSite(), site) == null) {
-        	return false;
-		}
-        
-		return true;
 	}
 
 	@Override
 	public Site getSite() {
 		return site;
+	}
+
+	@Override
+	public boolean isValid() {
+		// this always returns as valid
+		// target being solid/empty does not matter - you only need to be able
+		// to access it
+		// being unable to find a path is a transient fail
+		return true;
+	}
+
+	@Override
+	public boolean isComplete() {
+		if (getAgent() == null) {
+			return false;
+		} else if (getAgent().getSite().isAccessible(site)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean isCompletable() {
+		if (getAgent() == null) {
+			return false;
+		} else if (getAgent().getSite().getLandscape()
+				.findPath(getAgent().getSite(), site) == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	@Override
+	public void doAction() {
+		if (!isValid())
+			throw new IllegalArgumentException(
+					"Agent must be assigned before doing action");
+		else if (getAgent() == null)
+			throw new IllegalArgumentException("Invalid action");
+		else if (isComplete()) {
+			getAgent().removeAction(this);
+		} else if (!isCompletable()) {
+			// sensible action, but not achieavble right now
+			getAgent().getSite().getLandscape()
+					.addAction(getAgent().flushActions());
+		} else {
+			List<Site> path = site.getLandscape().findPath(
+					getAgent().getSite(), site);
+			if (path == null) {
+				// cannot complete this, no valid path
+				// Should already have been identified in isCompletable check
+				log.warn("no path found");
+			} else {
+				// log.info("path length = "+path.size());
+				// log.info("agent.getSite() = "+agent.getSite());
+				// re-pathfind
+				// add the actions in reverse order because actions are a stack
+				// don't do the last one because thats what we want to access
+				for (int i = path.size() - 2; i >= 1; i--) {
+					Site loc = path.get(i);
+					log.trace("loc = " + loc);
+					getAgent().addAction(new MoveTo(path.get(i)));
+				}
+			}
+		}
+	}
+
+	@Override
+	public int getEffort(Agent agent) {
+		return agent.getSite().getLandscape().findPath(agent.getSite(), site)
+				.size();
 	}
 }

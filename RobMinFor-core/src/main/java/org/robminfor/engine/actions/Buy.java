@@ -1,108 +1,166 @@
 package org.robminfor.engine.actions;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.robminfor.engine.Landscape;
 import org.robminfor.engine.Site;
 import org.robminfor.engine.agents.Agent;
-import org.robminfor.engine.entities.AbstractEntity;
-import org.robminfor.engine.entities.EntityManager;
-import org.robminfor.engine.entities.IStorage;
+import org.robminfor.engine.entities.IItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Buy extends AbstractAction {
 
-	private final String name;
-	private final AbstractEntity thing;
+	private Logger log = LoggerFactory.getLogger(getClass());
+
+	private Site source = null;
 	private Site target = null;
-	private final Landscape landscape; 
+	private final IItem item;
+	private boolean hasBought = false;
 
-	public Buy(AbstractEntity thing, Landscape landscape) {
-		this.name = thing.getName();
-		this.thing = thing;
-		this.landscape = landscape;
+	public Buy(IItem item) {
+		this.item = item;
 	}
-	
-	public Buy(String name, Landscape landscape) {
-		this.name = name;
-		this.thing = EntityManager.getEntityManager().getEntity(name);
-		this.landscape = landscape;
-	}
-	
+
 	@Override
-	public void abort(Agent agent) {
-		super.abort(agent);
-    	target = null;
-	}
-	
-	@Override
-	public void doAction(Agent agent) {
-        //check if we can complete this action
-		if (!isValid(agent)) {
-			abort(agent);
-			return;
-		}
-			
-		//find a target now and for ever
-		if (target == null) {
-			target = landscape.getNearestStorageFor(name, agent.getSite());
-		}
-		
-		//move to target
-		if (!agent.getSite().isAccessible(target)) {
-        	agent.addAction(new NavigateToAccess(target));
-		} else if (landscape.changeMoney(-thing.getBuyValue())) {
-			//actually at target so buy stuff
-			IStorage store = (IStorage) target.getEntity();
-			store.addEntity(name);
-			end(agent);		
-			return;	
+	public boolean isValid() {
+		if (hasBought && getAgent() != null
+				&& getAgent().peekInventory() != item) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 
 	@Override
-	public boolean isValid() {		
-		if (landscape.getMoney() < thing.getBuyValue()) {
+	public boolean isComplete() {
+		if (hasBought) {
+			return true;
+		} else {
 			return false;
 		}
-				
-		if (target == null) {
-			//no storage exists or is available
-			if (landscape.getStorageFor(name) == null) {
-				return false;
-			}
-		} else {
-			IStorage store = (IStorage) target.getEntity();
-			if (!store.canStore(name)) {
-				return false;
+	}
+
+	private Site getSource() {
+		if (source == null) {
+			// TODO do this based on trading locations
+			if (getAgent() != null) {
+				source = getAgent().getSite().getLandscape()
+						.getNearestStorageFor(item, getAgent().getSite());
 			}
 		}
-		return true;
+		return source;
+	}
+
+	private Site getTarget() {
+		if (target == null) {
+			if (getAgent() != null) {
+				target = getAgent().getSite().getLandscape()
+						.getNearestStorageFor(item, getAgent().getSite());
+			}
+		}
+		return target;
 	}
 
 	@Override
-	public boolean isValid(Agent agent) {
+	public boolean isCompletable() {
+		if (getAgent() == null) {
+			return false;
+		} else if (!hasBought && getAgent().peekInventory() != null) {
+			return false;
+		} else if (!hasBought
+				&& getAgent().getSite().getLandscape().getMoney() < item
+						.getBuyValue()) {
+			return false;
+		} else if (!hasBought
+				&& getAgent().getSite().getLandscape()
+						.findPath(getAgent().getSite(), getSource()) == null) {
+			return false;
+		} else if (hasBought
+				&& getAgent().getSite().getLandscape()
+						.findPath(getAgent().getSite(), getTarget()) == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	@Override
+	public void doAction() {
 		if (!isValid()) {
-			return false;
-		}
-		//there must be at least one possible target this agent can reach
-		if (target == null) {
-			Site tempTarget = landscape.getNearestStorageFor(name, agent.getSite());
-			if (!agent.getSite().isAccessible(tempTarget) || landscape.findPath(agent.getSite(), tempTarget) == null) {
-				return false;
+			throw new IllegalArgumentException(
+					"Agent must be assigned before doing action");
+		} else if (getAgent() == null) {
+			throw new IllegalArgumentException("Invalid action");
+		} else if (isComplete()) {
+			getAgent().removeAction(this);
+		} else if (!isCompletable()) {
+			// sensible action, but not achievable right now
+			// work out what's wrong
+			if (!hasBought && getAgent().peekInventory() != null) {
+				// carrying something already
+				IItem thing = getAgent().peekInventory();
+				Site tempTarget = getAgent().getSite().getLandscape()
+						.getNearestStorageFor(thing, getAgent().getSite());
+				getAgent().addAction(new Deliver(tempTarget));
+			} else if (!hasBought
+					&& getAgent().getSite().getLandscape().getMoney() < item
+							.getBuyValue()) {
+				// cant afford it, put it back on global list
+				source = null;
+				target = null;
+				setAgent(null);
+				getAgent().getSite().getLandscape()
+						.addAction(getAgent().flushActions());
+			} else if (!hasBought
+					&& getAgent().getSite().getLandscape()
+							.findPath(getAgent().getSite(), getSource()) == null) {
+				// cant path to source, put it back on global list
+				source = null;
+				target = null;
+				setAgent(null);
+				getAgent().getSite().getLandscape()
+						.addAction(getAgent().flushActions());
+			} else if (hasBought
+					&& getAgent().getSite().getLandscape()
+							.findPath(getAgent().getSite(), getTarget()) == null) {
+				// already bought, so just stop
+				getAgent().removeAction(this);
+			} else {
+				// should never be here
+				log.warn("cannot complete and can't determine why");
 			}
 		} else {
-			if (!agent.getSite().isAccessible(target) || landscape.findPath(agent.getSite(), target) == null) {
-				return false;
+			// haven't bought it yet
+			if (!hasBought && !getAgent().getSite().isAccessible(getSource())) {
+				// not in position to access source
+				getAgent().addAction(new NavigateToAccess(getSource()));
+			} else if (!hasBought
+					&& getAgent().getSite().getLandscape()
+							.changeMoney(item.getBuyValue())) {
+				hasBought = true;
+				getAgent().pushInventory(item);
+			} else if (hasBought) {
+				// complete the delivery stage
+				getAgent().addAction(new Deliver(getTarget()));
 			}
 		}
-		return true;
+
 	}
 
 	@Override
 	public Site getSite() {
-		//this may be null
-		return target;
+		return getTarget();
+	}
+
+	@Override
+	public int getEffort(Agent agent) {
+		if (!hasBought) {
+			return agent.getSite().getLandscape()
+					.findPath(agent.getSite(), getSource()).size();
+		} else if (hasBought) {
+			return agent.getSite().getLandscape()
+					.findPath(agent.getSite(), getTarget()).size();
+		} else {
+			return Integer.MAX_VALUE;
+		}
 	}
 
 }
