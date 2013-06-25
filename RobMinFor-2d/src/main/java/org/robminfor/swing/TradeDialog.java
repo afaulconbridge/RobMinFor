@@ -116,6 +116,7 @@ public class TradeDialog extends JDialog {
 
 		// refresh information
 		timer = new Timer(0, new RefreshListener());
+		timer.setRepeats(true);
 		timer.start();
 
 	}
@@ -205,14 +206,14 @@ public class TradeDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 
-			log.info("TradeDialog refresh");
+			//log.info("TradeDialog refresh");
 			// update counts
 			int imax = EntityManager.getEntityManager().getItemNames().size();
 			int cash = landscape.getMoney();
 			for (int i = 0; i < imax; i++) {
-				log.info("i = " + i);
-				log.info("imax = " + imax);
-				log.info("sells.size() = " + sells.size());
+				//log.info("i = " + i);
+				//log.info("imax = " + imax);
+				//log.info("sells.size() = " + sells.size());
 				IItem thing = EntityManager.getEntityManager().getItem(
 						EntityManager.getEntityManager().getItemNames().get(i));
 				int count = getCount(thing);
@@ -233,8 +234,7 @@ public class TradeDialog extends JDialog {
 						buys.get(i).setEnabled(true);
 					}
 				}
-				log.info(EntityManager.getEntityManager().getItemNames().get(i)
-						+ " = " + count);
+				//log.info(EntityManager.getEntityManager().getItemNames().get(i) + " = " + count);
 			}
 
 			// update count of workers
@@ -245,11 +245,6 @@ public class TradeDialog extends JDialog {
 			} else {
 				buys.get(imax).setEnabled(true);
 			}
-
-			// reshedule
-			if (newdialog.isShowing())
-				timer = new Timer(1000 / 5, new RefreshListener());
-			timer.start();
 		}
 	}
 

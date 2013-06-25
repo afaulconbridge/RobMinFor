@@ -2,38 +2,43 @@
 <entities>
 	<block name="Home" storage="true" />
 	<block name="Air" solid="false" />
-	<block name="OreVein" sellValue="10" buyValue="100" />
+	<block name="OreVein"/>
 		<deconstruction>
 			<output>Rock</output>
 			<output>Ore</output>
 			<output>Ore</output>
 		</deconstruction>
-	<block name="CrystalVein" sellValue="10" buyValue="100" />
+	<block name="CrystalVein"/>
 		<deconstruction>
 			<output>Rock</output>
 			<output>Rock</output>
 			<output>Crystal</output>
 		</deconstruction>
-	<block name="Stone" sellValue="2" buyValue="20" />
+	<block name="Stone"/>
 		<deconstruction>
 			<output>Rock</output>
 			<output>Rock</output>
 			<output>Rock</output>
 		</deconstruction>
-	<block name="Bricks" sellValue="2" buyValue="20" />
+	<block name="Bricks"/>
 		<construction>
 			<input>Brick</input>
 			<input>Brick</input>
 			<input>Brick</input>
 		</construction>
-	<block name="Stonemasonry" buyValue="1000" >
+	<block name="Stonemasonry" >
 		<conversion>
 			<input>Rock</input>
 			<output>Brick</output>
 		</conversion>
+		<construction>
+			<input>StonemasonryKit</input>
+		</construction>
 	</block>
-	<item name="Rock" />
-	<item name="Ore" />
-	<item name="Crystal" />
-	<item name="Brick" />
+	
+	<item name="Rock" sellValue="2" buyValue="20"  />
+	<item name="Ore" sellValue="10" buyValue="100"  />
+	<item name="Crystal" sellValue="10" buyValue="100"  />
+	<item name="Brick" sellValue="2" buyValue="20" />
+	<item name="StonemasonryKit" buyValue="1000" />
 </entities>

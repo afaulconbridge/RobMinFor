@@ -173,7 +173,7 @@ public class JPanelLandscape extends JComponent implements Scrollable,
 			}
 			// draw any agents on this layer
 			for (Agent agent : landscape.getAgents()) {
-				Vect agentPosition = agent.getPosition();
+				Vect agentPosition = agent.getSite().getPosition();
 				Vect agentOldPosition = agent.getPreviousSite().getPosition();
 				if (agentPosition.getZ() == z
 						&& agentPosition.getX() >= visibletileleft - 1

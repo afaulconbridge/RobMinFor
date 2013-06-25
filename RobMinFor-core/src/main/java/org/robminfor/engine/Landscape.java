@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.robminfor.engine.actions.AbstractAction;
+import org.robminfor.engine.actions.Deliver;
 import org.robminfor.engine.agents.Agent;
 import org.robminfor.engine.entities.IBlock;
 import org.robminfor.engine.entities.EntityManager;
@@ -61,7 +62,45 @@ public class Landscape {
 		calendar.add(Calendar.MINUTE, 1);
 
 		for (Agent agent : agents) {
-			agent.update();
+			updateAgent(agent);
+		}
+	}
+	
+	private void updateAgent(Agent agent) {
+
+		agent.setPreviousSite();
+		// if we are standing over something non-solid, fall
+		if (!agent.getSite().isWalkable()) {
+			Site target = agent.getSite().getLandscape().getSite(
+					agent.getSite().getX(), 
+					agent.getSite().getY(),
+					agent.getSite().getZ() + 1);
+			agent.setSite(target);
+			return;
+		}
+		
+		AbstractAction action = agent.getCurrentAction();
+		
+		//no current action
+		if (action == null) {
+			if (agent.peekInventory() != null) {
+				// if we are carrying something, and don't have another purpose for
+				// it, deliver it somewhere
+				action = new Deliver(getNearestStorageFor(agent.peekInventory(), agent.getSite()));
+				if (action.getEffort(agent) < Integer.MAX_VALUE) {
+					agent.addAction(action);
+				} else {
+					action = null;
+				}
+			} else {
+				//get a new action to do
+				action = assignActionForAgent(agent);
+			}
+		}
+		
+		//do the current action
+		if (action != null) {
+			action.doAction();
 		}
 	}
 
@@ -83,11 +122,12 @@ public class Landscape {
 
 	public synchronized void addAction(AbstractAction action) {
 		if (!actions.contains(action) && action.isValid()) {
+			action.setAgent(null);
 			actions.add(action);
 		}
 	}
 
-	public synchronized AbstractAction getActionForAgent(Agent agent) {
+	public synchronized AbstractAction assignActionForAgent(Agent agent) {
 		Integer minEffort = null;
 		AbstractAction bestAction = null;
 		for (int i = 0; i < actions.size(); i++) {
@@ -97,6 +137,9 @@ public class Landscape {
 				bestAction = action;
 				minEffort = effort;
 			}
+		}
+		if (bestAction != null) {
+			agent.addAction(bestAction);
 		}
 		return bestAction;
 	}

@@ -32,32 +32,41 @@ public class Agent {
 	public synchronized Site getSite() {
 		return site;
 	}
+	public synchronized void setPreviousSite() {
+		previousSite = site;
+	}
 
 	public synchronized Site getPreviousSite() {
 		return previousSite;
 	}
 
-	public synchronized Vect getPosition() {
-		return getSite().getPosition();
-	}
-
 	public synchronized void removeAction(AbstractAction action) {
-		if (!actions.remove(action))
+		if (!actions.remove(action)) {
 			throw new IllegalArgumentException("action not in actions");
+		}
+		action.setAgent(null);
 	}
 
 	public synchronized AbstractAction flushActions() {
 		AbstractAction topAction = actions.peekLast();
+		for (AbstractAction a : actions) {
+			a.setAgent(null);
+		}
 		actions.clear();
 		return topAction;
 	}
 
 	public synchronized void addAction(AbstractAction action) {
+		action.setAgent(this);
 		actions.add(0, action);
 	}
 
 	public synchronized AbstractAction getTopAction() {
 		return actions.peekLast();
+	}
+
+	public synchronized AbstractAction getCurrentAction() {
+		return actions.peek();
 	}
 
 	public synchronized void removeActionsOfType(
@@ -92,34 +101,6 @@ public class Agent {
 		IItem thing = this.inventory;
 		this.inventory = null;
 		return thing;
-	}
-
-	public synchronized void update() {
-		this.previousSite = this.site;
-		// if we are standing over something non-solid, fall
-		if (!site.isWalkable()) {
-			Site target = site.getLandscape().getSite(site.getX(), site.getY(),
-					site.getZ() + 1);
-			setSite(target);
-		} else if (actions.size() == 0) {
-			// if we are carrying something, and don't have another purpose for
-			// it, deliver it somewhere
-			if (peekInventory() != null) {
-				AbstractAction next = new Deliver(site.getLandscape()
-						.getNearestStorageFor(peekInventory(), site));
-				if (next.getEffort(this) < Integer.MAX_VALUE) {
-					addAction(next);
-				}
-			} else {
-				AbstractAction next = site.getLandscape().getActionForAgent(
-						this);
-				if (next != null) {
-					addAction(next);
-				}
-			}
-		} else {
-			actions.get(0).doAction();
-		}
 	}
 
 	/**

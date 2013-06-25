@@ -106,18 +106,16 @@ public class Buy extends AbstractAction {
 				// cant afford it, put it back on global list
 				source = null;
 				target = null;
+				getAgent().getSite().getLandscape().addAction(getAgent().flushActions());
 				setAgent(null);
-				getAgent().getSite().getLandscape()
-						.addAction(getAgent().flushActions());
 			} else if (!hasBought
 					&& getAgent().getSite().getLandscape()
 							.findPath(getAgent().getSite(), getSource()) == null) {
 				// cant path to source, put it back on global list
 				source = null;
 				target = null;
+				getAgent().getSite().getLandscape().addAction(getAgent().flushActions());
 				setAgent(null);
-				getAgent().getSite().getLandscape()
-						.addAction(getAgent().flushActions());
 			} else if (hasBought
 					&& getAgent().getSite().getLandscape()
 							.findPath(getAgent().getSite(), getTarget()) == null) {
@@ -152,10 +150,10 @@ public class Buy extends AbstractAction {
 
 	@Override
 	public int getEffort(Agent agent) {
-		if (!hasBought) {
+		if (!hasBought && getSource() != null) {
 			return agent.getSite().getLandscape()
 					.findPath(agent.getSite(), getSource()).size();
-		} else if (hasBought) {
+		} else if (hasBought && getTarget() != null) {
 			return agent.getSite().getLandscape()
 					.findPath(agent.getSite(), getTarget()).size();
 		} else {

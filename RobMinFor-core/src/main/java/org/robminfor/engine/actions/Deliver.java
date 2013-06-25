@@ -73,6 +73,7 @@ public class Deliver extends AbstractAction {
 			if (getAgent().getSite().getLandscape()
 					.findPath(getAgent().getSite(), getTarget()) == null) {
 				// cant path to target, just drop it here
+				//TODO finish
 			} else {
 				// should never be here
 				log.warn("cannot complete and can't determine why");
@@ -85,8 +86,6 @@ public class Deliver extends AbstractAction {
 				getTarget().addItem(getAgent().popInventory());
 			}
 		}
-
-		// TODO Auto-generated method stub
 	}
 
 	@Override
